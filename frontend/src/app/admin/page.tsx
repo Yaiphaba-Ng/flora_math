@@ -189,10 +189,12 @@ export default function AdminDashboard() {
           </h2>
           
           <div className="flex flex-col gap-3">
-            {isLoadingWeakSpots ? (
+            {isLoadingWeakSpots || isLoadingStats ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
+            ) : (stats?.totalSessions ?? 0) === 0 ? (
+               <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to play! 🌸</p>
             ) : !weakSpots?.top_errors?.length ? (
-               <p className="text-text-muted text-center py-8 font-medium">Perfect accuracy! No errors found.</p>
+               <p className="text-text-muted text-center py-8 font-medium">Perfect accuracy! No errors found. 🎉</p>
             ) : (
                weakSpots.top_errors.map((spot, idx) => (
                  <div key={idx} className="flex items-center justify-between p-3 bg-brand-light/30 rounded-xl border border-brand-light">
@@ -225,10 +227,12 @@ export default function AdminDashboard() {
           </h2>
           
           <div className="flex flex-col gap-3">
-            {isLoadingWeakSpots ? (
+            {isLoadingWeakSpots || isLoadingStats ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
+            ) : (stats?.totalSessions ?? 0) === 0 ? (
+               <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to play! 🌸</p>
             ) : !weakSpots?.slowest_correct?.length ? (
-               <p className="text-text-muted text-center py-8 font-medium">No hesitation detected. You are fast!</p>
+               <p className="text-text-muted text-center py-8 font-medium">No hesitation detected. You are fast! ⚡</p>
             ) : (
                weakSpots.slowest_correct.map((spot, idx) => (
                  <div key={idx} className="flex items-center justify-between p-3 bg-brand-light/30 rounded-xl border border-brand-light">

@@ -10,6 +10,7 @@ import { QuizConfigSheet } from "@/components/quiz/QuizConfigSheet";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useConfigStore } from "@/store/useConfigStore";
+import { useQuoteOfDay } from "@/hooks/useQuoteOfDay";
 
 interface ModuleData {
   slug: string;
@@ -20,13 +21,26 @@ interface ModuleData {
 export default function Home() {
   const router = useRouter();
   const { getModuleConfig } = useConfigStore();
-
   const [configSlug, setConfigSlug] = useState<string | null>(null);
+  const { quote, isFirstLoad } = useQuoteOfDay();
 
   const { data: modules, isLoading } = useQuery<ModuleData[]>({
     queryKey: ["modules"],
     queryFn: () => fetcher("/quiz/modules"),
   });
+
+  // First-ever visit: show a short friendly splash until the quote arrives
+  if (isFirstLoad) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-10 h-10 rounded-full border-4 border-brand-light border-t-brand-primary"
+        />
+      </div>
+    );
+  }
 
   const handlePlay = (slug: string) => {
     router.push(`/quiz/${slug}`);
@@ -56,9 +70,15 @@ export default function Home() {
       >
         <Sparkles className="absolute top-4 right-4 text-brand-primary opacity-50" size={32} />
         <h2 className="text-3xl font-extrabold text-brand-primary mb-4">Ready to play?</h2>
-        <p className="text-text-muted mb-6">
-          Master your math skills with fun, encouraging challenges! You're doing amazing.
-        </p>
+        <motion.p
+          key={quote ?? "default"}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-text-muted mb-6 italic"
+        >
+          ✨ {quote}
+        </motion.p>
         <BouncyButton id="progress-link-btn" variant="primary" onClick={() => router.push("/admin")}>
           View My Progress 📊
         </BouncyButton>
