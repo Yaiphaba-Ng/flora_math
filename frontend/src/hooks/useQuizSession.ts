@@ -23,7 +23,6 @@ export function useQuizSession(moduleSlug: string) {
   const [isFinished, setIsFinished] = useState(false);
   const [feedback, setFeedback] = useState<AnswerFeedback | null>(null);
   const [isStarting, setIsStarting] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const configRef = useRef<Record<string, unknown> | null>(null);
   const metricsRef = useRef<MetricPayload[]>([]);
@@ -62,7 +61,6 @@ export function useQuizSession(moduleSlug: string) {
 
   const submitAnswer = (userAnswer: string) => {
     if (!currentQuestion || isFinished) return;
-    setIsSubmitting(true);
     const timeTaken = Date.now() - questionStartTime.current;
 
     const module = getModuleBySlug(moduleSlug);
@@ -111,8 +109,6 @@ export function useQuizSession(moduleSlug: string) {
         body: JSON.stringify(payload)
       }).catch(err => console.error("Sync failed:", err));
     }
-    
-    setIsSubmitting(false);
   };
 
   const advanceToNext = () => {
@@ -140,7 +136,6 @@ export function useQuizSession(moduleSlug: string) {
     startSession,
     isStarting,
     submitAnswer,
-    isSubmitting,
     advanceToNext,
   };
 }

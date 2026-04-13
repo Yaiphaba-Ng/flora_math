@@ -56,14 +56,14 @@ export default function QuizPage() {
   // Auto-dismiss correct feedback after a short pause
   useEffect(() => {
     if (!showFeedback || !feedback) return;
-    const delay = feedback.isCorrect ? 700 : 2500;
+    const delay = feedback.isCorrect ? 250 : 1500;
     const t = setTimeout(dismissFeedback, delay);
     return () => clearTimeout(t);
   }, [showFeedback, feedback, dismissFeedback]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!answer.trim() || isSubmitting) return;
+    if (!answer.trim()) return;
     submitAnswer(answer.trim());
     setAnswer("");
   };
@@ -189,9 +189,9 @@ export default function QuizPage() {
                 type="submit"
                 variant="primary"
                 className="w-full text-lg"
-                disabled={isSubmitting || showFeedback || !answer.trim()}
+                disabled={showFeedback || !answer.trim()}
               >
-                {isSubmitting ? "✨ Checking..." : "Submit"}
+                Submit
               </BouncyButton>
             </form>
           </SoftCard>
