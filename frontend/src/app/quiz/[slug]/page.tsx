@@ -18,7 +18,7 @@ export default function QuizPage() {
   const {
     currentQuestion, questionIndex, totalQuestions,
     score, isFinished, feedback,
-    startSession, isStarting, submitAnswer, isSubmitting,
+    startSession, isStarting, submitAnswer,
     advanceToNext,
   } = useQuizSession(slug);
 
@@ -182,7 +182,7 @@ export default function QuizPage() {
                 className="w-full text-center text-3xl font-bold bg-brand-light/50 rounded-2xl p-4 outline-none focus:ring-4 focus:ring-brand-primary/30 text-text-main border border-brand-light"
                 placeholder="?"
                 autoFocus
-                readOnly={isSubmitting || showFeedback}
+                readOnly={showFeedback}
               />
               <BouncyButton
                 id="quiz-submit-btn"
