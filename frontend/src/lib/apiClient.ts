@@ -1,9 +1,5 @@
 export async function fetcher<T>(url: string, options?: RequestInit): Promise<T> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL ||
-    (typeof window !== "undefined"
-      ? `http://${window.location.hostname}:8000/api`
-      : "http://localhost:8000/api");
+  const baseUrl = "/api";
   const res = await fetch(`${baseUrl}${url}`, {
     ...options,
     headers: {

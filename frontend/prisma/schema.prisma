@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  current_streak_days Int       @default(0)
+  last_active_date    DateTime?
+  created_at          DateTime  @default(now())
+
+  quizSessions        QuizSession[]
+
+  @@index([name])
+}
+
+model QuizSession {
+  id              Int       @id @default(autoincrement())
+  user_id         Int
+  module_slug     String
+  score           Int       @default(0)
+  total_questions Int       @default(0)
+  is_completed    Boolean   @default(false)
+  session_data    String    // Stored as JSON string
+  created_at      DateTime  @default(now())
+
+  user            User      @relation(fields: [user_id], references: [id])
+  metrics         QuestionMetric[]
+
+  @@index([user_id])
+  @@index([module_slug])
+}
+
+model QuestionMetric {
+  id               Int       @id @default(autoincrement())
+  session_id       Int
+  question_string  String
+  module_slug      String
+  is_correct       Boolean   @default(false)
+  response_time_ms Int       @default(0)
+
+  session          QuizSession @relation(fields: [session_id], references: [id])
+
+  @@index([session_id])
+  @@index([question_string])
+  @@index([module_slug])
+}
+
+model AppConfig {
+  key   String  @id
+  value String  // JSON string
+}
+
+model ConfigUsage {
+  id          Int    @id @default(autoincrement())
+  module_slug String
+  field_key   String
+  field_value String
+  use_count   Int    @default(1)
+
+  @@unique([module_slug, field_key, field_value])
+  @@index([module_slug])
+  @@index([field_key])
+}

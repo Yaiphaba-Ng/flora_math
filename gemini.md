@@ -13,3 +13,4 @@
 * **Config Ranges:** No arbitrary caps. Free ranges unless a hard technical limit exists. See `docs/design_rules.md §6`.
 * **Mobile UI:** All interactive elements ≥ 44×44px touch target, including close/reset buttons. See `docs/design_rules.md §2`.
 * **DOM IDs:** Every new element needs `id` (singleton) or `data-testid` (repeated). Update `docs/elementId_ref.md` before closing any task. See `docs/design_rules.md §3`.
+* **CLI:** The user is on PowerShell. All CLI commands must be formatted for PowerShell (e.g., use `;` instead of `&&` for chaining).
