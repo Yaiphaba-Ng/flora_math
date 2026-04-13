@@ -9,7 +9,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Floramath 🌸",
+  title: "FloraMath 🌸",
   description: "A magical, personalized math quiz app — soft, encouraging, and beautiful.",
 };
 

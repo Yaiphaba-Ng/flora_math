@@ -1,5 +1,15 @@
 # Project Guidelines & Conventions
 
-* **Linter:** Do not run the linter automatically after completing a task.
-* **Documentation:** Create and actively maintain a corresponding `.md` file in the `/docs` directory outlining every development phase or major component. Always update these if architectures or features change over time.
-* **Architecture Rules:** Prioritize extreme developer friendliness. For isolated logic like game rules, use the "Plugin/Domain Pattern"—keep all associated logic within a single file (e.g., `services/modules/multiplication.py`) instead of scattering functionality across multiple files.
+> **Before writing any code, read the following reference docs:**
+> - **Design rules & mandates:** [`docs/design_rules.md`](docs/design_rules.md) — visual identity, touch targets, animations, component checklist.
+> - **DOM element ID map:** [`docs/elementId_ref.md`](docs/elementId_ref.md) — all `id` and `data-testid` selectors in the app; update whenever elements are added or renamed.
+
+---
+
+* **Linter:** Do not run automatically after completing a task.
+* **Docs:** Maintain a `.md` per phase/component in `/docs`. Update on any architecture or feature change.
+* **Architecture:** Plugin/Domain Pattern — all quiz logic in one file per module (e.g. `services/modules/multiplication.py`). See `docs/design_rules.md §7`.
+* **Quiz Feedback:** Every module must return `correct_answer` and use the `AnswerFeedback { id, isCorrect, correctAnswer }` counter pattern. See `docs/design_rules.md §5`.
+* **Config Ranges:** No arbitrary caps. Free ranges unless a hard technical limit exists. See `docs/design_rules.md §6`.
+* **Mobile UI:** All interactive elements ≥ 44×44px touch target, including close/reset buttons. See `docs/design_rules.md §2`.
+* **DOM IDs:** Every new element needs `id` (singleton) or `data-testid` (repeated). Update `docs/elementId_ref.md` before closing any task. See `docs/design_rules.md §3`.

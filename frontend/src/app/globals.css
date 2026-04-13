@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #FFB6C1;
-  --color-brand-accent: #FF9EBB;
-  --color-brand-light: #FFE4E1;
-  --color-background: #FAF9F6;
+  --color-brand-primary: #FFB6C1;   /* pastel pink — buttons, accents */
+  --color-brand-accent: #E8829A;    /* deeper rose — hover states, active */
+  --color-brand-light: #FFE4E1;     /* blush — backgrounds, card tints */
+  --color-background: #FAF9F6;      /* off-white page background */
   --color-surface: #FFFFFF;
-  --color-text-main: #4A4A4A;
-  --color-text-muted: #8F8F8F;
+  --color-text-main: #2D2D2D;       /* near-black — primary readable text */
+  --color-text-muted: #6B6B6B;      /* medium grey — secondary text, labels */
+  --color-text-strong: #1A1A1A;     /* true dark — headings, scores */
 }
 
 :root {

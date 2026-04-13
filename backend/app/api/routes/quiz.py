@@ -1,10 +1,11 @@
+import json
 from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import Session
+from sqlmodel import Session, select
 from app.db.database import get_session
-from app.models.domain import QuizSession, QuestionMetric
+from app.models.domain import QuizSession, QuestionMetric, ConfigUsage
 from app.services.registry import registry
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
@@ -22,31 +23,66 @@ def start_quiz_session(payload: StartSessionRequest, db: Session = Depends(get_s
     plugin = registry.get_module(payload.module_slug)
     if not plugin:
         raise HTTPException(status_code=404, detail="Quiz module not found")
-        
+
     questions = plugin.generate_questions(payload.config)
-    
-    # Init DB Session
+    if not questions:
+        raise HTTPException(status_code=400, detail="Config generated 0 questions")
+
+    # Honour num_questions: trim the shuffled list to the requested length
+    num_questions = int(payload.config.get("num_questions", 20))
+    questions = questions[:max(1, num_questions)]
+
+    # Serialize generated question list (strings + answers) into session_data.
+    # This avoids any Redis dependency while keeping all state server-side.
+    serialized_qs = [
+        {"q": q.question_string, "a": q.correct_answer}
+        for q in questions
+    ]
+
     session_record = QuizSession(
         user_id=payload.user_id,
         module_slug=payload.module_slug,
         total_questions=len(questions),
-        session_data=payload.config
+        session_data={
+            "config": payload.config,
+            "questions": serialized_qs,
+            "current_index": 0,
+        }
     )
     db.add(session_record)
     db.commit()
     db.refresh(session_record)
-    
-    # Ideally, we cache the 'questions' list in Redis or serialize it into session_data here
-    # For now, we return the session ID and the first question.
-    if not questions:
-         raise HTTPException(status_code=400, detail="Config generated 0 questions")
-         
+
+    # ── Record config usage for dynamic chip suggestions ──────────────────────
+    for field_key, field_value in payload.config.items():
+        # Only track numeric values — booleans/toggles are not shown as chips
+        if not isinstance(field_value, bool) and isinstance(field_value, (int, float)):
+            str_val = str(int(field_value))
+            existing = db.exec(
+                select(ConfigUsage).where(
+                    ConfigUsage.module_slug == payload.module_slug,
+                    ConfigUsage.field_key == field_key,
+                    ConfigUsage.field_value == str_val,
+                )
+            ).first()
+            if existing:
+                existing.use_count += 1
+                db.add(existing)
+            else:
+                db.add(ConfigUsage(
+                    module_slug=payload.module_slug,
+                    field_key=field_key,
+                    field_value=str_val,
+                ))
+    db.commit()
+    # ── End usage recording ───────────────────────────────────────────────────
+
     return {
         "session_id": session_record.id,
         "total": len(questions),
-        # In a real setup, we don't expose 'correct_answer' to the client.
-        "first_question": questions[0].question_string
+        "first_question": serialized_qs[0]["q"],
     }
+
 
 class SubmitAnswerRequest(BaseModel):
     session_id: int
@@ -59,20 +95,52 @@ def submit_answer(payload: SubmitAnswerRequest, db: Session = Depends(get_sessio
     session_record = db.get(QuizSession, payload.session_id)
     if not session_record:
         raise HTTPException(status_code=404, detail="Session not found")
-        
-    plugin = registry.get_module(session_record.module_slug)
-    # We would reconstruct the question object here or validate against the cache.
-    # For now, dummy logic to track the metric map exactly as planned.
-    is_correct = True # Dummy truth evaluation
-    
+
+    data = session_record.session_data
+    questions = data.get("questions", [])
+    current_index = data.get("current_index", 0)
+
+    if current_index >= len(questions):
+        raise HTTPException(status_code=400, detail="Session already completed")
+
+    current_q = questions[current_index]
+
+    # Real answer validation — compare against the stored correct answer
+    try:
+        is_correct = int(payload.user_answer) == int(current_q["a"])
+    except (ValueError, TypeError):
+        is_correct = False
+
+    # Advance the index
+    next_index = current_index + 1
+    is_finished = next_index >= len(questions)
+
+    # Update session state in DB
+    session_record.session_data = {
+        **data,
+        "current_index": next_index,
+    }
+    if is_correct:
+        session_record.score += 1
+    if is_finished:
+        session_record.is_completed = True
+
+    # Record the per-question metric for analytics
     metric = QuestionMetric(
         session_id=payload.session_id,
         question_string=payload.question_string,
         module_slug=session_record.module_slug,
         is_correct=is_correct,
-        response_time_ms=payload.time_taken_ms
+        response_time_ms=payload.time_taken_ms,
     )
     db.add(metric)
+    db.add(session_record)
     db.commit()
-    
-    return {"status": "recorded", "is_correct": is_correct}
+
+    return {
+        "is_correct": is_correct,
+        "is_finished": is_finished,
+        "next_question": questions[next_index]["q"] if not is_finished else None,
+        "score": session_record.score,
+        "correct_answer": str(current_q["a"]),
+    }

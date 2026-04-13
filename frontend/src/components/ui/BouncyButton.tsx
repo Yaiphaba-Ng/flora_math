@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import React from "react";
 
-interface BouncyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface BouncyButtonProps extends HTMLMotionProps<"button"> {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'outline';
 }

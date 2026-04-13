@@ -23,9 +23,14 @@ class MultiplicationModule(BaseQuizModule):
         range_end = config.get("range_end", 12)
         length = config.get("length", 10)
         
+        easy_nums = {0, 1, 10, 11}
         questions = []
         for table_num in range(range_start, range_end + 1):
+            if table_num in easy_nums:
+                continue
             for multiplier in range(1, length + 1):
+                if multiplier in easy_nums:
+                    continue
                 questions.append(MultiplicationQuestion(table_num, multiplier))
                 
         # Shuffle internally to gamify it

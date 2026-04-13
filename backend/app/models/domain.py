@@ -1,5 +1,5 @@
-from typing import Optional, Dict, Any, List
-from sqlmodel import SQLModel, Field, Column, JSON
+from typing import Optional, Dict, Any
+from sqlmodel import SQLModel, Field, Column, JSON, UniqueConstraint
 from datetime import datetime, timezone
 
 class User(SQLModel, table=True):
@@ -35,3 +35,15 @@ class AppConfig(SQLModel, table=True):
     # A generic Key-Value map allowing the frontend to dynamically get custom UI text.
     key: str = Field(primary_key=True)
     value: Dict[str, Any] = Field(sa_column=Column(JSON))
+
+
+class ConfigUsage(SQLModel, table=True):
+    """Tracks how many times a user has used a specific field value.
+    This powers the dynamic quick-select chip suggestions in the config sheet."""
+    __table_args__ = (UniqueConstraint("module_slug", "field_key", "field_value"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    module_slug: str = Field(index=True)
+    field_key: str = Field(index=True)
+    field_value: str   # stored as string; numerics are parsed on the frontend
+    use_count: int = Field(default=1)

@@ -1,5 +1,5 @@
 <h1 align="center">
-  🌸 Floramath 🌸
+  🌸 FloraMath 🌸
 </h1>
 
 <p align="center">
@@ -33,7 +33,7 @@ An interactive numerical aptitude quiz app with a soft, encouraging UI featuring
 This is a monorepo containing two independent services:
 
 ```
-floramath/
+FloraMath/
 ├── backend/        # Python · FastAPI · SQLModel · SQLite
 ├── frontend/       # Next.js 16 · Tailwind CSS · Framer Motion · Zustand
 └── docs/           # Per-phase developer documentation
