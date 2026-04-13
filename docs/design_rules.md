@@ -69,9 +69,9 @@
 
 > **These rules apply to every current and future quiz module. Non-negotiable.**
 
-1. The `/api/quiz/answer` endpoint MUST return a `correct_answer` field:
-   - `null` when the answer is correct.
-   - The real answer string when the answer is wrong.
+1. The module's `evaluateAnswer()` method MUST handle the logic, and the module architecture MUST ensure the correct answer is known.
+   - The UI evaluates answers synchronously.
+   - The real answer string MUST be available when the answer is wrong to show on the UI.
 2. The UI MUST display the correct answer prominently on wrong submissions.
 3. Feedback state MUST use the `AnswerFeedback { id, isCorrect, correctAnswer }` counter pattern — **never a raw boolean** — so consecutive identical results always re-trigger animations.
 
@@ -89,10 +89,10 @@
 
 ## 7. Module / Plugin Architecture
 
-- All quiz logic lives in a single self-contained file: `backend/app/services/modules/<slug>.py`.
-- All frontend config schema lives in `frontend/src/config/moduleConfigs.ts`.
-- Adding a new quiz type = adding one entry to `moduleConfigs.ts` + one `.py` plugin file. No other files need to change.
-- Config sheet UI renders automatically from the schema — never build per-module UI.
+- All quiz logic lives in a single self-contained class: `src/lib/quiz/modules/<slug>.ts` which extends `BaseQuizModule`.
+- All config schema is exported natively from the class itself via `getConfigSchema()`.
+- Adding a new quiz type = creating the `.ts` module and adding exactly one line to `src/lib/quiz/registry.ts`.
+- The gameplay loop evaluates directly in the browser; metrics are sent securely via `/api/quiz/sync`.
 
 ---
 

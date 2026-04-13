@@ -8,7 +8,7 @@
 
 * **Linter:** Do not run automatically after completing a task.
 * **Docs:** Maintain a `.md` per phase/component in `/docs`. Update on any architecture or feature change.
-* **Architecture:** Plugin/Domain Pattern — all quiz logic in one file per module (e.g. `services/modules/multiplication.py`). See `docs/design_rules.md §7`.
+* **Architecture:** Hybrid Standalone Pattern — all quiz logic in one TypeScript file per module (e.g. `src/lib/quiz/modules/multiplication.ts`). Gameplay loop is client-side; metrics sync via `/api/quiz/sync`. See `docs/design_rules.md §7`.
 * **Quiz Feedback:** Every module must return `correct_answer` and use the `AnswerFeedback { id, isCorrect, correctAnswer }` counter pattern. See `docs/design_rules.md §5`.
 * **Config Ranges:** No arbitrary caps. Free ranges unless a hard technical limit exists. See `docs/design_rules.md §6`.
 * **Mobile UI:** All interactive elements ≥ 44×44px touch target, including close/reset buttons. See `docs/design_rules.md §2`.

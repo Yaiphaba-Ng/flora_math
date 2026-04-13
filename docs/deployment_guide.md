@@ -12,12 +12,10 @@ If you haven't recently:
 
 ---
 
-## 🗄️ Step 2: Vercel Postgres Setup
+## 🗄️ Step 2: Neon Postgres Setup
 Local SQLite is great, but Vercel requires PostgreSQL for production.
-1. Log into your [Vercel Dashboard](https://vercel.com).
-2. Go to the **Storage** tab.
-3. Click **Create Database** and select **Postgres**.
-4. Once created, click on it and navigate to the **.env.local** tab. Look for the `DATABASE_URL` (it will start with `postgres://` or `postgresql://`). 
+1. Create a free PostgreSQL database on [Neon](https://neon.tech) (or Supabase).
+2. Find the pooled connection string (it will start with `postgres://` or `postgresql://`).
    - **Important:** Copy this connection string.
 
 ---

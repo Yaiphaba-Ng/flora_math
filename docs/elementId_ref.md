@@ -29,7 +29,7 @@
 | `#quiz-question-text` | The question heading |
 | `#quiz-answer-form` / `#quiz-answer-input` | Form + number input |
 | `#quiz-submit-btn` | Submit button |
-| `#quiz-feedback-msg` + `data-correct` | Feedback flash |
+| `#quiz-feedback-overlay` + `data-correct` | Feedback overlay |
 | `#quiz-results-screen` / `#quiz-score-display` | Results screen + score |
 | `#quiz-home-btn` / `#quiz-replay-btn` | End screen actions |
 

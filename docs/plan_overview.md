@@ -5,10 +5,10 @@ You are an expert full-stack developer and UI/UX designer. Your task is to build
 This project is a personalized gift for my girlfriend. The UI must be extremely cute, soft, and encouraging. The design system should revolve around "off-white and pastel pink" aesthetics, utilizing bouncy, satisfying animations, rounded corners, soft shadows, and cute transition effects. The app must be intuitive, frictionless, and feature encouraging micro-copy (e.g., "Great job!", "You're doing amazing!").
 
 **Tech Stack**
-* **Frontend:** Next.js (App Router), React, Tailwind CSS.
+* **Frontend/Gameplay Engine:** Next.js (App Router), React, Tailwind CSS. Purely client-side evaluation for zero-latency.
 * **Animations:** Framer Motion (for page transitions, button bounces, and success animations).
-* **Backend/Database:** Next.js Server Actions, PostgreSQL (with an ORM like Prisma or Drizzle).
-* **State Management:** React Context or Zustand (for managing quiz sessions and sound toggles).
+* **Backend/Database:** Neon PostgreSQL with Prisma. Used exclusively for background metrics synchronization to prevent UI blocking.
+* **State Management:** React local state for quiz loops, Zustand for configuration persistence.
 * **Audio:** Standard HTML5 Audio APIs for success/error sound effects.
 
 **Design System & UI Guidelines**
