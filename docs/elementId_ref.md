@@ -11,6 +11,11 @@
 | `#home-page` | Root `<main>` |
 | `#progress-link-btn` | "View My Progress" CTA |
 
+**Admin Dashboard** (`id`)
+| Selector | Element |
+|---|---|
+| `#admin-back-btn` | ← back arrow |
+
 **Homepage** (`data-testid` — repeated per module)
 | Selector | Element |
 |---|---|
