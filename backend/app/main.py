@@ -1,0 +1,30 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.db.database import create_db_and_tables
+from app.api.routes import quiz, admin
+
+app = FastAPI(
+    title="Floramath API 🌸",
+    description="Backend powering the magical Floramath quiz app",
+    version="1.0.0"
+)
+
+# Setup CORS to allow Next.js frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "message": "The magical engine is running."}
+
+app.include_router(quiz.router)
+app.include_router(admin.router)
