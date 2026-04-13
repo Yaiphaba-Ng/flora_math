@@ -1,0 +1,89 @@
+# ============================================================================
+# Numerical Aptitude Quizzer — .gitignore
+# ============================================================================
+
+# ── Python / Backend ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# uv / virtualenv
+.venv/
+venv/
+.uv/
+
+# SQLite database files (runtime state, never commit these)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Coverage & testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# MyPy / type cache
+.mypy_cache/
+.dmypy.json
+
+
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Next.js cache
+frontend/.vercel/
+
+# TypeScript build info
+*.tsbuildinfo
+frontend/next-env.d.ts
+
+# npm / pnpm / yarn lock files (keep package-lock for reproducibility)
+# If you prefer yarn, swap the comments below:
+# package-lock.json
+# yarn.lock
+
+# Tailwind JIT cache (auto-generated)
+frontend/.tailwind-cache/
+
+
+# ── Editor / IDE ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+
+# ── OS Generated ──────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+
+# ── Gemini / AI tools (local assistant state) ─────────────────────────────────
+.gemini/
