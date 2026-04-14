@@ -73,17 +73,16 @@ export default function Home() {
         className="w-full bg-brand-light rounded-3xl p-8 mb-12 text-center shadow-sm relative overflow-hidden"
       >
         <Sparkles className="absolute top-4 right-4 text-brand-primary opacity-50" size={32} />
-        <h2 className="text-3xl font-extrabold text-brand-primary mb-4">Ready to start?</h2>
         <motion.p
           key={quote ?? "default"}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-text-muted mb-6 flex justify-center gap-1 italic"
+          className="text-text-muted mb-6 flex justify-center gap-1 pt-4 italic"
         >
-          <span className="text-brand-primary/40 text-2xl font-serif leading-none">“</span>
-          <span>{quote}</span>
-          <span className="text-brand-primary/40 text-2xl font-serif leading-none self-end">”</span>
+          <span className="text-brand-primary/60 text-5xl font-serif leading-none">“</span>
+          <span className="font-serif">{quote}</span>
+          <span className="text-brand-primary/60 text-5xl font-serif leading-none self-end">”</span>
         </motion.p>
         <BouncyButton id="progress-link-btn" variant="primary" onClick={() => router.push("/admin")}>
           View My Progress

@@ -90,7 +90,7 @@ export default function AdminDashboard() {
     <main className="min-h-screen p-8 max-w-5xl mx-auto flex flex-col gap-8">
       {/* Top Header Row */}
       <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 md:mb-6">
-        <header className="w-full flex items-center gap-3 md:gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm">
+        <header className="flex-1 flex items-center gap-3 md:gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm">
           <button id="admin-back-btn" onClick={() => router.push("/")} className="p-2 flex-shrink-0 text-text-muted hover:text-brand-primary transition rounded-full hover:bg-brand-light">
             <ArrowLeft size={24} />
           </button>
@@ -120,45 +120,45 @@ export default function AdminDashboard() {
                 className={`text-brand-primary transform transition-transform duration-200 mx-2 ${isDropdownOpen ? "rotate-180" : ""}`} 
               />
             </button>
-          </div>
           
-          <AnimatePresence>
-            {isDropdownOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white border border-brand-light rounded-xl shadow-xl overflow-hidden z-20"
-              >
-                <div className="flex flex-col py-1">
-                  <button
-                    onClick={() => {
-                      setSelectedModule("all");
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`flex items-center justify-between px-4 py-3 hover:bg-brand-light/30 transition-colors text-left ${selectedModule === "all" ? "bg-brand-light/20" : ""}`}
-                  >
-                    <span className={`text-sm font-bold ${selectedModule === "all" ? "text-brand-primary" : "text-text-main"}`}>Every Topic</span>
-                    {selectedModule === "all" && <Check size={16} className="text-brand-primary" />}
-                  </button>
-                  {modules?.map((m) => (
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="absolute right-0 top-full mt-2 w-full md:w-64 bg-white border border-brand-light rounded-xl shadow-xl overflow-hidden z-20"
+                >
+                  <div className="flex flex-col py-1">
                     <button
-                      key={m.slug}
                       onClick={() => {
-                        setSelectedModule(m.slug);
+                        setSelectedModule("all");
                         setIsDropdownOpen(false);
                       }}
-                      className={`flex items-center justify-between px-4 py-3 hover:bg-brand-light/30 transition-colors text-left border-t border-brand-light/50 ${selectedModule === m.slug ? "bg-brand-light/20" : ""}`}
+                      className={`flex items-center justify-between px-4 py-3 hover:bg-brand-light/30 transition-colors text-left ${selectedModule === "all" ? "bg-brand-light/20" : ""}`}
                     >
-                      <span className={`text-sm font-bold ${selectedModule === m.slug ? "text-brand-primary" : "text-text-main"}`}>{m.title}</span>
-                      {selectedModule === m.slug && <Check size={16} className="text-brand-primary" />}
+                      <span className={`text-sm font-bold ${selectedModule === "all" ? "text-brand-primary" : "text-text-main"}`}>Every Topic</span>
+                      {selectedModule === "all" && <Check size={16} className="text-brand-primary" />}
                     </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    {modules?.map((m) => (
+                      <button
+                        key={m.slug}
+                        onClick={() => {
+                          setSelectedModule(m.slug);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-3 hover:bg-brand-light/30 transition-colors text-left border-t border-brand-light/50 ${selectedModule === m.slug ? "bg-brand-light/20" : ""}`}
+                      >
+                        <span className={`text-sm font-bold ${selectedModule === m.slug ? "text-brand-primary" : "text-text-main"}`}>{m.title}</span>
+                        {selectedModule === m.slug && <Check size={16} className="text-brand-primary" />}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
