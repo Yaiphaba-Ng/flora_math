@@ -90,8 +90,8 @@ export default function AdminDashboard() {
     <main className="min-h-screen p-8 max-w-5xl mx-auto flex flex-col gap-8">
       {/* Top Header Row */}
       <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 md:mb-6">
-        <header className="flex items-center gap-3 md:gap-4">
-          <button id="admin-back-btn" onClick={() => router.push("/")} className="p-2 flex-shrink-0 text-text-muted hover:text-brand-primary transition rounded-full hover:bg-brand-light -ml-2">
+        <header className="w-full flex items-center gap-3 md:gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm">
+          <button id="admin-back-btn" onClick={() => router.push("/")} className="p-2 flex-shrink-0 text-text-muted hover:text-brand-primary transition rounded-full hover:bg-brand-light">
             <ArrowLeft size={24} />
           </button>
           <div className="bg-brand-accent p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-sm text-white flex-shrink-0">
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
             {isLoadingWeakSpots || isLoadingStats ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
             ) : (stats?.totalSessions ?? 0) === 0 ? (
-               <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to play! 🌸</p>
+               <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to start! 🌸</p>
             ) : !weakSpots?.top_errors?.length ? (
                <p className="text-text-muted text-center py-8 font-medium">Perfect accuracy! No errors found. 🎉</p>
             ) : (
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
             {isLoadingWeakSpots || isLoadingStats ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
             ) : (stats?.totalSessions ?? 0) === 0 ? (
-               <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to play! 🌸</p>
+               <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to start! 🌸</p>
             ) : !weakSpots?.slowest_correct?.length ? (
                <p className="text-text-muted text-center py-8 font-medium">No hesitation detected. You are fast! ⚡</p>
             ) : (

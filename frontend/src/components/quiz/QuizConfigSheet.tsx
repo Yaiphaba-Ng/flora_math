@@ -165,7 +165,7 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
             key="sheet"
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl max-w-lg mx-auto max-h-[85vh] flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-surface rounded-t-3xl shadow-2xl max-w-lg mx-auto max-h-[85vh] flex flex-col"
           >
             {/* ── Pinned header ── */}
             <div className="shrink-0">
@@ -259,7 +259,7 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
             </div>
 
             {/* ── Pinned footer ── */}
-            <div className="shrink-0 px-5 pb-8 pt-3 bg-white">
+            <div className="shrink-0 px-5 pb-8 pt-3 bg-surface">
               <motion.button
                 id="config-start-btn"
                 whileHover={{ scale: 1.02 }}
@@ -267,7 +267,10 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
                 onClick={handlePlay}
                 className="w-full bg-brand-primary text-white font-extrabold text-lg rounded-2xl py-4 flex items-center justify-center gap-2 shadow-md shadow-brand-primary/30"
               >
-                <Play size={20} fill="white" /> Start Quiz
+                <Play size={20} fill="white" /> 
+                <span className="flex items-center gap-1.5">
+                  Start Quiz <span className="text-xl filter drop-shadow-[0_0_1px_rgba(255,182,193,0.5)]">🌸</span>
+                </span>
               </motion.button>
             </div>
           </motion.div>

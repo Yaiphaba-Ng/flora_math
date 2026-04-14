@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { FloatingFlowers } from "@/components/ui/FloatingFlowers";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${nunito.variable} antialiased selection:bg-brand-light`} suppressHydrationWarning>
         <Providers>
+          <FloatingFlowers />
           {children}
         </Providers>
       </body>

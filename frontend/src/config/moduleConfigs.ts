@@ -86,7 +86,7 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
   },
   {
     slug: "squares",
-    title: "Square Numbers",
+    title: "Squares",
     emoji: "🔢",
     sentenceTemplate: "Square every number from {range_start} to {range_end}",
     computeMaxQuestions: (cfg) => {
@@ -108,6 +108,34 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
         type: "number",
         min: 1,
         defaultValue: 20,
+      },
+      numQuestionsField,
+    ],
+  },
+  {
+    slug: "cubes",
+    title: "Cubes",
+    emoji: "🧊",
+    sentenceTemplate: "Cube every number from {range_start} to {range_end}",
+    computeMaxQuestions: (cfg) => {
+      const start = Number(cfg.range_start ?? 1);
+      const end = Number(cfg.range_end ?? 12);
+      return Math.max(1, Math.abs(end - start) + 1);
+    },
+    fields: [
+      {
+        key: "range_start",
+        label: "Start from",
+        type: "number",
+        min: 1,
+        defaultValue: 1,
+      },
+      {
+        key: "range_end",
+        label: "Up to",
+        type: "number",
+        min: 1,
+        defaultValue: 12,
       },
       numQuestionsField,
     ],

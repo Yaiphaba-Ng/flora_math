@@ -3,9 +3,9 @@
 @theme {
   --color-brand-primary: #FFB6C1;   /* pastel pink — buttons, accents */
   --color-brand-accent: #E8829A;    /* deeper rose — hover states, active */
-  --color-brand-light: #FFE4E1;     /* blush — backgrounds, card tints */
-  --color-background: #FAF9F6;      /* off-white page background */
-  --color-surface: #FFFFFF;
+  --color-brand-light: #FFF0F3;     /* softer pink — now for cards/hero */
+  --color-background: #FFE4E1;      /* more saturated blush — now for site background */
+  --color-surface: #FCFAFA;         /* off-white card surface */
   --color-text-main: #2D2D2D;       /* near-black — primary readable text */
   --color-text-muted: #6B6B6B;      /* medium grey — secondary text, labels */
   --color-text-strong: #1A1A1A;     /* true dark — headings, scores */

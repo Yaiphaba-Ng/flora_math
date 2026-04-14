@@ -48,17 +48,21 @@ export default function Home() {
 
   return (
     <main id="home-page" className="min-h-screen p-8 flex flex-col items-center max-w-4xl mx-auto">
-      {/* Header */}
-      <header className="w-full flex justify-between items-center mb-12">
+      {/* Header / Title Bar */}
+      <header className="w-full flex flex-col md:flex-row justify-center md:justify-between items-center mb-12 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm gap-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3"
         >
-          <div className="bg-brand-primary p-3 rounded-2xl shadow-sm text-white">
-            <Calculator size={24} />
-          </div>
-          <h1 className="text-2xl font-bold text-text-main">FloraMath 🌸</h1>
+          <motion.div
+            animate={{ rotate: [0, 15, -15, 0] }}
+            transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+            className="text-5xl filter drop-shadow-sm select-none"
+          >
+            🌸
+          </motion.div>
+          <h1 className="text-4xl font-black text-brand-primary tracking-tight">FloraMath</h1>
         </motion.div>
       </header>
 
@@ -69,7 +73,7 @@ export default function Home() {
         className="w-full bg-brand-light rounded-3xl p-8 mb-12 text-center shadow-sm relative overflow-hidden"
       >
         <Sparkles className="absolute top-4 right-4 text-brand-primary opacity-50" size={32} />
-        <h2 className="text-3xl font-extrabold text-brand-primary mb-4">Ready to play?</h2>
+        <h2 className="text-3xl font-extrabold text-brand-primary mb-4">Ready to start?</h2>
         <motion.p
           key={quote ?? "default"}
           initial={{ opacity: 0, y: 6 }}
@@ -82,15 +86,17 @@ export default function Home() {
           <span className="text-brand-primary/40 text-2xl font-serif leading-none self-end">”</span>
         </motion.p>
         <BouncyButton id="progress-link-btn" variant="primary" onClick={() => router.push("/admin")}>
-          View My Progress 📊
+          View My Progress
         </BouncyButton>
       </motion.div>
 
       {/* Modules Grid */}
-      <div className="w-full">
-        <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-          <Sparkles size={20} className="text-brand-accent" /> Select a Challenge
-        </h3>
+      <div className="w-full flex flex-col items-center md:items-start">
+        <div className="bg-surface px-6 py-3 rounded-2xl border border-brand-light/50 shadow-sm mb-8">
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <Sparkles size={20} className="text-brand-accent" /> Start a Challenge
+          </h3>
+        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
@@ -107,7 +113,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <SoftCard data-testid={`module-card-${mod.slug}`} className="h-full flex flex-col justify-between relative">
+                <SoftCard data-testid={`module-card-${mod.slug}`} className="h-full flex flex-col justify-between relative !bg-brand-light border-brand-light/60">
                   {/* Gear config button — top-right corner */}
                   <motion.button
                     data-testid={`module-config-btn-${mod.slug}`}
@@ -128,12 +134,14 @@ export default function Home() {
 
                   <div className="mt-4 flex justify-end items-center">
                     <BouncyButton
-                      data-testid={`module-play-btn-${mod.slug}`}
+                      data-testid={`module-start-btn-${mod.slug}`}
                       variant="primary"
-                      className="text-sm px-5 py-2"
+                      className="text-sm px-6 py-2.5 font-bold"
                       onClick={() => handlePlay(mod.slug)}
                     >
-                      Play 🌸
+                      <span className="flex items-center gap-1.5 justify-center">
+                        Start
+                      </span>
                     </BouncyButton>
                   </div>
                 </SoftCard>

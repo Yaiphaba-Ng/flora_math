@@ -83,9 +83,12 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <motion.div
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ repeat: Infinity, duration: 1.4 }}
-          className="text-5xl"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 10, -10, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="text-7xl filter drop-shadow-md select-none"
         >
           🌸
         </motion.div>
@@ -126,10 +129,12 @@ export default function QuizPage() {
               <BouncyButton
                 id="quiz-replay-btn"
                 variant="primary"
-                className="flex-1"
+                className="flex-1 font-bold py-4"
                 onClick={() => startSession(getModuleConfig(slug))}
               >
-                Play Again 🌸
+                <span className="flex items-center gap-1.5 justify-center">
+                  Start Again <span className="text-xl filter drop-shadow-[0_0_1px_rgba(255,182,193,0.5)]"></span>
+                </span>
               </BouncyButton>
             </div>
           </SoftCard>
@@ -143,8 +148,8 @@ export default function QuizPage() {
     <main id="quiz-page" data-quiz-slug={slug} className="min-h-screen p-8 flex flex-col items-center max-w-lg mx-auto gap-8 relative">
 
       {/* Back + Progress */}
-      <header className="w-full flex items-center gap-4">
-        <button id="quiz-back-btn" onClick={() => router.push("/")} className="p-2 text-text-muted hover:text-brand-primary transition">
+      <header className="w-full flex items-center gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm">
+        <button id="quiz-back-btn" onClick={() => router.push("/")} className="p-2 text-text-muted hover:text-brand-primary transition rounded-full hover:bg-brand-light">
           <ArrowLeft size={20} />
         </button>
         <div id="quiz-progress-bar-track" className="flex-1 bg-brand-light rounded-full h-3 overflow-hidden">
@@ -176,7 +181,7 @@ export default function QuizPage() {
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className="w-full"
         >
-          <SoftCard className="text-center">
+          <SoftCard className="text-center !bg-brand-light border-brand-light/60">
             <p className="text-text-muted text-sm mb-4 font-medium tracking-wide uppercase">What is</p>
             <h2 id="quiz-question-text" className="text-5xl font-extrabold text-brand-primary mb-8">{currentQuestion} = ?</h2>
 
@@ -239,7 +244,7 @@ export default function QuizPage() {
               </h2>
 
               {/* Question recap & answer */}
-              <div className="bg-white/70 px-8 py-6 rounded-3xl shadow-sm border border-white/50 mb-2 inline-block">
+              <div className="bg-surface/70 px-8 py-6 rounded-3xl shadow-sm border border-white/50 mb-2 inline-block">
                  <p className="text-4xl font-extrabold text-brand-primary">
                   {feedback.questionText} ={" "}
                   <span className={`${
