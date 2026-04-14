@@ -1,45 +1,28 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { generateText } from '@/lib/llmClient';
+import { prisma } from '@/lib/prisma';
 
-const FALLBACK_ENCOURAGEMENTS = [
-  "Keep going!",
-  "Almost there!",
-  "Try again!",
-  "You've got this!",
-  "Stay strong!"
-];
+const FALLBACK_PHRASE = "Keep going! You've got this!";
+
+const DEFAULT_PROMPT = `Generate exactly ONE unique, warm and encouraging short phrase for a student who just got a math question wrong.
+Rules:
+- Phrase must be 3-6 words MAX
+- Sound gentle, sweet and motivating—not sarcastic
+- Return ONLY a valid JSON object with a single "phrase" key
+Example format: { "phrase": "You're doing great, try again!" }`;
 
 export async function GET() {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ phrases: FALLBACK_ENCOURAGEMENTS });
-    }
+    const config = await prisma.appConfig.findUnique({ where: { key: 'llm_prompt_encouragement' } });
+    const prompt = config?.value || DEFAULT_PROMPT;
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-    const prompt = `Generate exactly 5 unique, warm and encouraging short phrases for a child who just got a math question wrong. 
-Rules:
-- Each phrase must be 3-4 words MAX
-- Sound gentle, sweet and motivating—not sarcastic  
-- Return ONLY a valid JSON array of 5 strings, no preamble, no explanation
-Example format: ["Try again!", "You've got this!", "Keep going!", "Almost there!", "Believe in yourself!"]`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: { responseMimeType: 'application/json' }
-    });
-
-    const raw = response.text?.trim() ?? '';
-    const phrases: string[] = JSON.parse(raw);
-
-    if (!Array.isArray(phrases) || phrases.length === 0) {
-      return NextResponse.json({ phrases: FALLBACK_ENCOURAGEMENTS });
-    }
-
-    return NextResponse.json({ phrases });
+    const raw = await generateText(prompt, true);
+    const data = JSON.parse(raw.trim());
+    const phrase = data?.phrase || data?.[0] || FALLBACK_PHRASE;
+    return NextResponse.json({ phrase });
   } catch (error: any) {
-    console.error("LLM Encouragement Generation Error:", error);
-    return NextResponse.json({ phrases: FALLBACK_ENCOURAGEMENTS });
+    console.error("LLM Encouragement error:", error);
+    return NextResponse.json({ phrase: FALLBACK_PHRASE });
   }
 }

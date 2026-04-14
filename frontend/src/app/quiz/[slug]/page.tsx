@@ -25,18 +25,11 @@ export default function QuizPage() {
 
   const [answer, setAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
-  const [encouragementIndex, setEncouragementIndex] = useState(0);
   const [currentEncouragement, setCurrentEncouragement] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load encouragement phrases from localStorage cache (instant) with background refresh
-  const { phrases: encouragements } = useEncouragements();
-
-  const getEncouragement = () => {
-    const phrase = encouragements[encouragementIndex % encouragements.length];
-    setEncouragementIndex(i => i + 1);
-    return phrase;
-  };
+  // Load encouragement puller (handles background queueing)
+  const { pullEncouragement } = useEncouragements();
 
   // Auto-start session using the user's saved config from the store
   useEffect(() => {
@@ -49,7 +42,7 @@ export default function QuizPage() {
   useEffect(() => {
     if (!feedback) return;
     if (!feedback.isCorrect) {
-      setCurrentEncouragement(getEncouragement());
+      setCurrentEncouragement(pullEncouragement());
     }
     setShowFeedback(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps

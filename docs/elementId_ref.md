@@ -53,4 +53,12 @@
 | `[data-testid="config-slider-input-num_questions"]` | Slider number input |
 | `[data-testid="config-slider-range-num_questions"]` | Slider range track |
 | `#config-start-btn` | "Start Quiz" CTA |
+
+**Settings page** (`id`)
+| Selector | Element |
+|---|---|
+| `#settings-prompt-quote` | Quote generation prompt textarea |
+| `#settings-prompt-encouragement` | Encouragement prompt textarea |
+| `#settings-save-btn` | Save configuration CTA |
+| `#settings-reset-btn` | Reset metrics data button |
 

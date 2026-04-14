@@ -75,9 +75,11 @@ export default function Home() {
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-text-muted mb-6 italic"
+          className="text-text-muted mb-6 flex justify-center gap-1 italic"
         >
-          ✨ {quote}
+          <span className="text-brand-primary/40 text-2xl font-serif leading-none">“</span>
+          <span>{quote}</span>
+          <span className="text-brand-primary/40 text-2xl font-serif leading-none self-end">”</span>
         </motion.p>
         <BouncyButton id="progress-link-btn" variant="primary" onClick={() => router.push("/admin")}>
           View My Progress 📊

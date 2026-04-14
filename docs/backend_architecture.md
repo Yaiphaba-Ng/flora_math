@@ -19,7 +19,13 @@ The single most critical API endpoint is `POST /api/quiz/sync`.
 To prevent database bottlenecks from locking up the user visually, the frontend never queries the DB to evaluate answers. Instead, it aggregates stats purely locally. 
 Once the quiz finishes, it shoots a massive JSON blob containing timestamps, `is_correct` flags, and module configs to this endpoint. The endpoint securely unspools the payload and `createMany` injects it into Prisma.
 
-## 4. Admin Analytics Tracking
-The `QuestionMetric` and `QuizSession` data synchronized during gameplay is utilized entirely to fuel the `/admin` portal. 
-- **`GET /api/admin/metrics/weak-spots`**: Aggregates recent `QuestionMetric` rows that scored `is_correct = false` to deduce what questions the user is struggling with.
-- **`GET /api/admin/sessions/recent`**: Streams out the global leaderboard history for the UI chart.
+## 5. LLM & Intelligence Integration 🌸
+FloraMath uses AI to provide encouragement and motivation via Google Gemini and Groq.
+- **Shared LLM Client (`src/lib/llmClient.ts`)**: A provider-agnostic factory that intercepts requests and dispatches them to the configured provider (Gemini or Groq).
+- **AppConfig Store**: The database table `AppConfig` stores the active `llm_provider`, `llm_model`, and encrypted (if implemented) or raw `llm_api_key_gemini` and `llm_api_key_groq`.
+- **Latency Optimization**: Both `/api/llm/quote` and `/api/llm/encouragement` are designed to be consumed by SWR hooks to keep the UI zero-latency.
+
+## 6. Settings Persistence
+The `/settings` route manages global application state via the `AppConfig` table.
+- **Database Fallback**: Settings API routes (`/api/settings/llm/test` and `/api/settings/llm/models`) intelligently fallback to database-stored keys if the request body is empty.
+- **Live Model Discovery**: The `/api/settings/llm/models` endpoint performs live discovery against provider APIs rather than using hardcoded lists.

@@ -22,6 +22,19 @@ FloraMath relies heavily on *Framer Motion* for its soft, bouncy aesthetic.
 - **Overlays:** The "Correct/Incorrect" full-screen feedback relies on `<AnimatePresence>` to smoothly enter and exit the DOM hierarchy. 
 - *Note:* The structural markup heavily utilizes `data-testid` and `id` properties—refer to `elementId_ref.md` before altering the DOM structure.
 
-## 4. End-of-Session Background Sync
-To avoid UI freezing, the frontend ONLY contacts the backend once the quiz is definitively over.
-When the final question is answered, `useQuizSession` fires an asynchronous, non-blocking `fetch()` to `/api/quiz/sync`. This commits the user's progress and stats to the database invisibly.
+## 5. Intelligence Layer (LLM SWR Caching)
+To integrate AI without introducing latency, FloraMath implements a **Stale-While-Revalidate (SWR)** pattern using `localStorage`.
+
+- **`src/hooks/useQuoteOfDay.ts`**:
+  - **First Visit**: Displays a minimal loading spinner while awaiting the Gemini/Groq API.
+  - **Subsequent Visits**: Instantly returns the quote cached in `localStorage` from the previous session, then silently refreshes it in the background for the next visit.
+- **`src/hooks/useEncouragements.ts`**:
+  - Pre-fetches a batch of 5 encouraging phrases as soon as a quiz begins.
+  - To mitigate rate-limiting, background refreshes are delayed by 4 seconds after page load.
+  - Serves results with zero latency during the active gameplay loop.
+
+## 6. App Configuration (`/settings`)
+The `/settings` page allows runtime configuration of the LLM provider.
+- It uses **React Query** for server state management.
+- Features **Live Model Discovery**: The UI communicates with the backend to fetch available models directly from the provider APIs.
+- Includes a **Connection Tester**: Leverages a dedicated test endpoint to verify API keys against the chosen provider before database commit.

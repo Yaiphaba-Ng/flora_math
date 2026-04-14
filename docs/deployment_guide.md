@@ -41,7 +41,10 @@ To test your app or sync the tables before deployment:
    - **Framework Preset**: Next.js
    - **Root Directory**: Select `frontend` (Important!). Select "Edit" to choose this if it defaults to root.
 4. **Environment Variables**:
-   - Make sure your `DATABASE_URL` is configured here or linked via the Storage tab automatically.
+   - `DATABASE_URL`: Mandatory. Your Neon/Postgres connection string.
+   - `GEMINI_API_KEY`: Mandatory for AI generation. Get yours from [Google AI Studio](https://aistudio.google.com/).
+   - `GROQ_API_KEY`: Optional fallback. Get yours from [Groq Console](https://console.groq.com/).
+   - *Note:* These can also be configured at runtime via the `/settings` page once the app is deployed.
 5. Click **Deploy**.
 
 🎉 **That's it! Everything — UI, API routes, Database logic — is now deployed successfully as a single optimized unified unit.**

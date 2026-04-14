@@ -1,26 +1,20 @@
-export const revalidate = 3600; // Cache for 1 hour to prevent spamming the API on every page load
+export const revalidate = 3600;
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { generateText } from '@/lib/llmClient';
+import { prisma } from '@/lib/prisma';
+
+const FALLBACK_QUOTE = "You are capable of incredible things. Keep learning and growing every single day!";
+const DEFAULT_PROMPT = "Generate a single, very short, highly positive and encouraging quote about learning, math, or personal growth. Do not include quotes around the text. Maximum 2 short sentences. Sound friendly and warm.";
 
 export async function GET() {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ quote: "Master your math skills with fun, encouraging challenges! You're doing amazing." });
-    }
-
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-    const prompt = "Generate a single, short, highly positive and encouraging quote about learning, math, or personal growth. Do not include quotes around the text. Maximum 2 sentences. Sound friendly and warm.";
+    const config = await prisma.appConfig.findUnique({ where: { key: 'llm_prompt_quote' } });
+    const prompt = config?.value || DEFAULT_PROMPT;
     
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-    });
-
-    const quoteText = response.text?.replace(/"/g, '').trim();
-
-    return NextResponse.json({ quote: quoteText || "You're capable of incredible things. Keep learning!" });
+    const text = await generateText(prompt);
+    return NextResponse.json({ quote: text.replace(/"/g, '').trim() || FALLBACK_QUOTE });
   } catch (error: any) {
-    console.error("LLM Quote Generation Error:", error);
-    return NextResponse.json({ quote: "Master your math skills with fun, encouraging challenges! You're doing amazing." });
+    console.error("LLM Quote error:", error);
+    return NextResponse.json({ quote: FALLBACK_QUOTE });
   }
 }

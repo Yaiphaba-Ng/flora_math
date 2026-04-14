@@ -7,6 +7,7 @@ import { Brain, Activity, Clock, Target, ArrowLeft, Filter, AlertCircle, Zap, Ch
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface WeakSpotError {
   question: string;
@@ -50,6 +51,7 @@ interface ModuleInfo {
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [selectedModule, setSelectedModule] = useState<string>("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -101,22 +103,24 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        {/* Filter Dropdown */}
-        <div className="w-full md:w-auto relative" ref={dropdownRef}>
-          <button 
-            type="button"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full flex items-center bg-brand-light/40 border border-brand-light hover:border-brand-accent p-2 md:p-2.5 rounded-xl shadow-sm transition-all text-left"
-          >
-            <Filter size={18} className="text-brand-accent mx-2 flex-shrink-0" />
-            <span className="bg-transparent text-sm sm:text-base font-bold text-text-main flex-1 md:w-48 truncate">
-              {selectedModule === "all" ? "Every Topic" : modules?.find(m => m.slug === selectedModule)?.title || "Select Topic"}
-            </span>
-            <ChevronDown 
-              size={18} 
-              className={`text-brand-primary transform transition-transform duration-200 mx-2 ${isDropdownOpen ? "rotate-180" : ""}`} 
-            />
-          </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          {/* Filter Dropdown */}
+          <div className="w-full sm:w-auto relative" ref={dropdownRef}>
+            <button 
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex items-center bg-brand-light/40 border border-brand-light hover:border-brand-accent p-2 md:p-2.5 rounded-xl shadow-sm transition-all text-left"
+            >
+              <Filter size={18} className="text-brand-accent mx-2 flex-shrink-0" />
+              <span className="bg-transparent text-sm sm:text-base font-bold text-text-main flex-1 md:w-48 truncate">
+                {selectedModule === "all" ? "Every Topic" : modules?.find(m => m.slug === selectedModule)?.title || "Select Topic"}
+              </span>
+              <ChevronDown 
+                size={18} 
+                className={`text-brand-primary transform transition-transform duration-200 mx-2 ${isDropdownOpen ? "rotate-180" : ""}`} 
+              />
+            </button>
+          </div>
           
           <AnimatePresence>
             {isDropdownOpen && (
