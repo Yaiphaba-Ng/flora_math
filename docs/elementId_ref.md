@@ -28,6 +28,9 @@
 | `[data-testid="module-card-cubes"]` | Module card |
 | `[data-testid="module-config-btn-cubes"]` | ⚙ gear button |
 | `[data-testid="module-start-btn-cubes"]` | Start button |
+| `[data-testid="module-card-addition_subtraction"]` | Module card |
+| `[data-testid="module-config-btn-addition_subtraction"]` | ⚙ gear button |
+| `[data-testid="module-start-btn-addition_subtraction"]` | Start button |
 
 **Quiz page** (`id`)
 | Selector | Element |
@@ -55,9 +58,14 @@
 | `[data-testid="config-stepper-up-range_start"]` | ▲ button |
 | `[data-testid="config-stepper-down-range_start"]` | ▽ button |
 | `[data-testid="config-stepper-input-range_start"]` | Number input |
+| `[data-testid="config-stepper-digits"]` | Stepper block |
+| `[data-testid="config-stepper-up-digits"]` | ▲ button |
+| `[data-testid="config-stepper-down-digits"]` | ▽ button |
+| `[data-testid="config-stepper-input-digits"]` | Number input |
 | `[data-testid="config-slider-num_questions"]` | Slider block |
 | `[data-testid="config-slider-input-num_questions"]` | Slider number input |
 | `[data-testid="config-slider-range-num_questions"]` | Slider range track |
+| `[data-testid="config-toggle-allow_negative"]` | Toggle button (bool fields) |
 | `#config-start-btn` | "Start Quiz" CTA |
 
 **Settings page** (`id`)

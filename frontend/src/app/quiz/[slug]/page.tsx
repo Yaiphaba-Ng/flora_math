@@ -166,24 +166,30 @@ export default function QuizPage() {
       </header>
 
       {/* Score pill */}
-      <div id="quiz-score-pill" className="flex items-center gap-2 bg-brand-light px-4 py-2 rounded-full shadow-sm">
+      <motion.div 
+        id="quiz-score-pill" 
+        key={score}
+        initial={{ scale: 1 }}
+        animate={{ scale: [1, 1.2, 1] }}
+        className="flex items-center gap-2 bg-brand-light px-4 py-2 rounded-full shadow-md shadow-brand-primary/10 border border-brand-primary/10"
+      >
         <Trophy size={16} className="text-brand-accent" />
-        <span className="text-sm font-bold text-brand-primary">Score: {score}</span>
-      </div>
+        <span className="text-sm font-bold text-brand-primary tabular-nums">Score: {score}</span>
+      </motion.div>
 
       {/* Question Card */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestion}
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
+          initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, scale: 1.1, rotate: 2 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className="w-full"
         >
-          <SoftCard className="text-center !bg-brand-light border-brand-light/60">
-            <p className="text-text-muted text-sm mb-4 font-medium tracking-wide uppercase">What is</p>
-            <h2 id="quiz-question-text" className="text-5xl font-extrabold text-brand-primary mb-8">{currentQuestion} = ?</h2>
+          <SoftCard className="text-center !bg-brand-light border-brand-light/60 shadow-xl shadow-brand-primary/5">
+            <p className="text-text-muted text-sm mb-4 font-medium tracking-wide uppercase opacity-70">What is</p>
+            <h2 id="quiz-question-text" className="text-5xl font-bold text-brand-primary mb-8">{currentQuestion} = ?</h2>
 
             <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input
@@ -192,7 +198,7 @@ export default function QuizPage() {
                 type="number"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                className="w-full text-center text-3xl font-bold bg-brand-light/50 rounded-2xl p-4 outline-none focus:ring-4 focus:ring-brand-primary/30 text-text-main border border-brand-light"
+                className="w-full text-center text-3xl font-bold bg-white/60 rounded-2xl p-4 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light"
                 placeholder="?"
                 autoFocus
                 readOnly={showFeedback}
@@ -201,7 +207,7 @@ export default function QuizPage() {
                 id="quiz-submit-btn"
                 type="submit"
                 variant="primary"
-                className="w-full text-lg"
+                className="w-full text-lg py-4 rounded-2xl"
                 disabled={showFeedback || !answer.trim()}
               >
                 Submit
@@ -221,34 +227,43 @@ export default function QuizPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.2 }}
             onClick={dismissFeedback}
-            className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-8 cursor-pointer ${
+            className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-8 cursor-pointer backdrop-blur-md ${
               feedback.isCorrect
-                ? "bg-green-50/95 backdrop-blur-sm"
-                : "bg-red-50/95 backdrop-blur-sm"
+                ? "bg-green-50/90"
+                : "bg-red-50/90"
             }`}
           >
             <motion.div
-              initial={{ scale: 0.6, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.6, opacity: 0 }}
+              initial={{ scale: 0.5, rotate: feedback.isCorrect ? 0 : -5 }}
+              animate={{ 
+                scale: 1, 
+                rotate: 0,
+                boxShadow: feedback.isCorrect 
+                  ? "0 0 60px 10px rgba(134, 239, 172, 0.2)" 
+                  : "0 0 60px 10px rgba(252, 165, 165, 0.2)"
+              }}
+              exit={{ scale: 1.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="text-center max-w-md"
+              className="text-center max-w-md p-10 rounded-[3rem] bg-white shadow-2xl relative overflow-hidden border border-brand-light/20"
             >
+              {/* Decorative background glow */}
+              <div className={`absolute inset-0 opacity-5 ${feedback.isCorrect ? "bg-green-300" : "bg-red-300"}`} />
+
               {/* Title */}
-              <h2 className={`text-5xl font-extrabold tracking-tight mb-8 ${
-                feedback.isCorrect ? "text-green-500" : "text-brand-accent"
+              <h2 className={`text-5xl font-extrabold tracking-tight mb-8 relative z-10 ${
+                feedback.isCorrect ? "text-green-600/70" : "text-brand-accent"
               }`}>
-                {feedback.isCorrect ? "Correct! 🌸" : "Not quite! 💔"}
+                {feedback.isCorrect ? "Yay! 🌸" : "Oops! 💔"}
               </h2>
 
               {/* Question recap & answer */}
-              <div className="bg-surface/70 px-8 py-6 rounded-3xl shadow-sm border border-white/50 mb-2 inline-block">
-                 <p className="text-4xl font-extrabold text-brand-primary">
+              <div className="bg-brand-light/20 px-10 py-8 rounded-[2.5rem] border-2 border-white/80 mb-4 inline-block relative z-10 shadow-inner">
+                 <p className="text-4xl font-extrabold text-brand-primary tabular-nums">
                   {feedback.questionText} ={" "}
                   <span className={`${
-                    feedback.isCorrect ? "text-green-500" : "text-brand-accent"
+                    feedback.isCorrect ? "text-green-600/70" : "text-brand-accent"
                   }`}>
                     {feedback.correctAnswer}
                   </span>
@@ -256,13 +271,17 @@ export default function QuizPage() {
               </div>
 
               {!feedback.isCorrect && (
-                <p className="text-lg font-bold text-brand-accent mt-4">
+                <motion.p 
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="text-lg font-bold text-red-400 mt-4 relative z-10"
+                >
                   {currentEncouragement}
-                </p>
+                </motion.p>
               )}
 
               {/* Tap hint */}
-              <p className="text-xs text-text-muted mt-8 animate-pulse">Tap anywhere to continue</p>
+              <p className="text-xs font-bold text-text-muted mt-10 animate-bounce uppercase tracking-widest opacity-50 relative z-10">Tap to continue</p>
             </motion.div>
           </motion.div>
         )}
