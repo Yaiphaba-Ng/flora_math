@@ -56,14 +56,20 @@ export default function AdminDashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // --- PERSISTENCE BRIDGE: "Always Display Something" strategy ---
+  const [persistedData, setPersistedData] = useState<Record<string, any>>({});
+
+  // On mount, load everything from localStorage for instant "stale" display
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const keys = ["admin-overview-all", "admin-weak-spots-all", "admin-recent-sessions-all"];
+    const loaded: Record<string, any> = {};
+    keys.forEach(k => {
+      try {
+        const val = localStorage.getItem(k);
+        if (val) loaded[k] = JSON.parse(val);
+      } catch (e) {}
+    });
+    setPersistedData(loaded);
   }, []);
 
   const { data: modules } = useQuery<ModuleInfo[]>({
@@ -71,31 +77,74 @@ export default function AdminDashboard() {
     queryFn: () => fetcher("/quiz/modules")
   });
 
-  const { data: stats, isLoading: isLoadingStats } = useQuery<GlobalStats>({
+  // Overview Stats
+  const { data: stats, isFetching: isFetchingStats } = useQuery<GlobalStats>({
     queryKey: ["admin", "overview", selectedModule],
-    queryFn: () => fetcher(`/admin/metrics/overview?module=${selectedModule}`)
+    queryFn: () => fetcher(`/admin/metrics/overview?module=${selectedModule}`),
+    placeholderData: (prev) => prev || persistedData[`admin-overview-${selectedModule}`] || persistedData[`admin-overview-all`],
+    staleTime: 10000, // 10s quiet revalidation
   });
 
-  const { data: weakSpots, isLoading: isLoadingWeakSpots } = useQuery<WeakSpotsPayload>({
+  // Weak Spots
+  const { data: weakSpots, isFetching: isFetchingWeakSpots } = useQuery<WeakSpotsPayload>({
     queryKey: ["admin", "weak-spots", selectedModule],
-    queryFn: () => fetcher(`/admin/metrics/weak-spots?module=${selectedModule}`)
+    queryFn: () => fetcher(`/admin/metrics/weak-spots?module=${selectedModule}`),
+    placeholderData: (prev) => prev || persistedData[`admin-weak-spots-${selectedModule}`] || persistedData[`admin-weak-spots-all`],
+    staleTime: 15000,
   });
 
-  const { data: sessions, isLoading: isLoadingSessions } = useQuery<Session[]>({
+  // Sessions
+  const { data: sessions, isFetching: isFetchingSessions } = useQuery<Session[]>({
     queryKey: ["admin", "recent-sessions", selectedModule],
-    queryFn: () => fetcher(`/admin/sessions/recent?module=${selectedModule}`)
+    queryFn: () => fetcher(`/admin/sessions/recent?module=${selectedModule}`),
+    placeholderData: (prev) => prev || persistedData[`admin-recent-sessions-${selectedModule}`] || persistedData[`admin-recent-sessions-all`],
+    staleTime: 10000,
   });
+
+  // Persist "all" data as a global fallback whenever it updates
+  useEffect(() => {
+    if (stats && selectedModule === "all") localStorage.setItem("admin-overview-all", JSON.stringify(stats));
+  }, [stats, selectedModule]);
+
+  useEffect(() => {
+    if (weakSpots && selectedModule === "all") localStorage.setItem("admin-weak-spots-all", JSON.stringify(weakSpots));
+  }, [weakSpots, selectedModule]);
+
+  useEffect(() => {
+    if (sessions && selectedModule === "all") localStorage.setItem("admin-recent-sessions-all", JSON.stringify(sessions));
+  }, [sessions, selectedModule]);
+
+  // Derived loading states: only show pulse if we have NO data at all (not even placeholder)
+  const hasStats = !!stats;
+  const hasWeakSpots = !!weakSpots;
+  const hasSessions = !!sessions;
 
   return (
     <main className="min-h-screen p-8 max-w-5xl mx-auto flex flex-col gap-8">
       {/* Top Header Row */}
       <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 md:mb-6">
-        <header className="flex-1 flex items-center gap-3 md:gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm">
+        <header className="flex-1 flex items-center gap-3 md:gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm relative overflow-hidden">
+          {/* Subtle "updating" indicator */}
+          {(isFetchingStats || isFetchingSessions || isFetchingWeakSpots) && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="absolute bottom-0 left-0 h-0.5 bg-brand-primary/30"
+              style={{ width: "100%" }}
+            >
+              <motion.div 
+                className="h-full bg-brand-primary"
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                style={{ width: "30%" }}
+              />
+            </motion.div>
+          )}
+          
           <button id="admin-back-btn" onClick={() => router.push("/")} className="p-2 flex-shrink-0 text-text-muted hover:text-brand-primary transition rounded-full hover:bg-brand-light">
             <ArrowLeft size={24} />
           </button>
           <div className="bg-brand-accent p-2.5 md:p-3 rounded-xl md:rounded-2xl shadow-sm text-white flex-shrink-0">
-            <Activity className="w-6 h-6 md:w-8 md:h-8" />
+            <Activity className={`w-6 h-6 md:w-8 md:h-8 ${(isFetchingStats || isFetchingSessions || isFetchingWeakSpots) ? 'animate-pulse' : ''}`} />
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-brand-primary leading-tight">Progress Dashboard</h1>
@@ -166,20 +215,20 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-3 gap-3 md:gap-6 w-full">
         <SoftCard className="flex flex-col items-center justify-center p-4 md:py-6 text-center">
           <span className="text-xs md:text-sm font-bold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-1"><Target size={14}/> Accuracy</span>
-          {isLoadingStats ? <div className="h-8 md:h-10 w-16 bg-brand-light animate-pulse rounded-lg mt-1" /> : (
-            <span className="text-2xl md:text-4xl font-extrabold text-brand-primary">{stats?.globalAccuracy}%</span>
+          {!hasStats ? <div className="h-8 md:h-10 w-16 bg-brand-light animate-pulse rounded-lg mt-1" /> : (
+            <span className={`text-2xl md:text-4xl font-extrabold text-brand-primary ${isFetchingStats ? 'opacity-50' : ''}`}>{stats?.globalAccuracy}%</span>
           )}
         </SoftCard>
         <SoftCard className="flex flex-col items-center justify-center p-4 md:py-6 text-center">
           <span className="text-xs md:text-sm font-bold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-1"><Clock size={14}/> Speed</span>
-          {isLoadingStats ? <div className="h-8 md:h-10 w-16 bg-brand-light animate-pulse rounded-lg mt-1" /> : (
-            <span className="text-2xl md:text-4xl font-extrabold text-brand-accent">{stats?.avgResponseTimeSec}s</span>
+          {!hasStats ? <div className="h-8 md:h-10 w-16 bg-brand-light animate-pulse rounded-lg mt-1" /> : (
+            <span className={`text-2xl md:text-4xl font-extrabold text-brand-accent ${isFetchingStats ? 'opacity-50' : ''}`}>{stats?.avgResponseTimeSec}s</span>
           )}
         </SoftCard>
         <SoftCard className="flex flex-col items-center justify-center p-4 md:py-6 text-center">
           <span className="text-xs md:text-sm font-bold text-text-muted uppercase tracking-wider mb-1 flex items-center gap-1"><Brain size={14}/> Sessions</span>
-          {isLoadingStats ? <div className="h-8 md:h-10 w-12 bg-brand-light animate-pulse rounded-lg mt-1" /> : (
-            <span className="text-2xl md:text-4xl font-extrabold text-text-strong">{stats?.totalSessions}</span>
+          {!hasStats ? <div className="h-8 md:h-10 w-12 bg-brand-light animate-pulse rounded-lg mt-1" /> : (
+            <span className={`text-2xl md:text-4xl font-extrabold text-text-strong ${isFetchingStats ? 'opacity-50' : ''}`}>{stats?.totalSessions}</span>
           )}
         </SoftCard>
       </div>
@@ -192,8 +241,8 @@ export default function AdminDashboard() {
             <AlertCircle size={20} className="text-brand-primary" /> High Error Rate
           </h2>
           
-          <div className="flex flex-col gap-3">
-            {isLoadingWeakSpots || isLoadingStats ? (
+          <div className={`flex flex-col gap-3 ${isFetchingWeakSpots ? 'opacity-60' : ''}`}>
+            {!hasWeakSpots ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
             ) : (stats?.totalSessions ?? 0) === 0 ? (
                <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to start! 🌸</p>
@@ -230,8 +279,8 @@ export default function AdminDashboard() {
             <Zap size={20} className="text-brand-accent" /> Hesitations (Slow Correct)
           </h2>
           
-          <div className="flex flex-col gap-3">
-            {isLoadingWeakSpots || isLoadingStats ? (
+          <div className={`flex flex-col gap-3 ${isFetchingWeakSpots ? 'opacity-60' : ''}`}>
+            {!hasWeakSpots ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
             ) : (stats?.totalSessions ?? 0) === 0 ? (
                <p className="text-text-muted text-center py-8 font-medium">No sessions recorded yet. Time to start! 🌸</p>
@@ -268,8 +317,8 @@ export default function AdminDashboard() {
             <Brain size={20} className="text-brand-primary" /> Session History
           </h2>
           
-          <div className="flex flex-col gap-3">
-             {isLoadingSessions ? (
+          <div className={`flex flex-col gap-3 ${isFetchingSessions ? 'opacity-60' : ''}`}>
+             {!hasSessions ? (
                <div className="animate-pulse flex h-32 bg-brand-light/50 rounded-xl"></div>
             ) : sessions?.length === 0 ? (
                <p className="text-text-muted text-center py-8">No sessions recorded yet.</p>

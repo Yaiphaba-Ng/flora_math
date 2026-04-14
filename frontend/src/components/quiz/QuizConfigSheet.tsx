@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronUp, ChevronDown, Play } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { MODULE_CONFIG_SCHEMAS, ConfigField } from "@/config/moduleConfigs";
 import { useConfigStore } from "@/store/useConfigStore";
 
@@ -66,7 +66,7 @@ function NumberStepper({ field, value, onChange }: {
           }}
           transition={{ type: "spring", stiffness: 600, damping: 25 }}
           onClick={() => onChange(clamp(value - 1))}
-          className="w-12 h-12 rounded-full bg-white border-2 border-brand-light flex items-center justify-center text-brand-primary shadow-sm transition-colors"
+          className="w-12 h-12 shrink-0 aspect-square rounded-full bg-white border-2 border-brand-light flex items-center justify-center text-brand-primary shadow-sm transition-colors"
         >
           <ChevronDown size={22} />
         </motion.button>
@@ -106,7 +106,7 @@ function NumberStepper({ field, value, onChange }: {
           }}
           transition={{ type: "spring", stiffness: 600, damping: 25 }}
           onClick={() => onChange(clamp(value + 1))}
-          className="w-12 h-12 rounded-full bg-white border-2 border-brand-light flex items-center justify-center text-brand-primary shadow-sm transition-colors"
+          className="w-12 h-12 shrink-0 aspect-square rounded-full bg-white border-2 border-brand-light flex items-center justify-center text-brand-primary shadow-sm transition-colors"
         >
           <ChevronUp size={22} />
         </motion.button>
@@ -253,6 +253,17 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
     onPlay();
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Compute max possible questions dynamically from current config
   const maxQuestions = useMemo(() => {
     if (!schema?.computeMaxQuestions) return undefined;
@@ -291,7 +302,7 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
             <div className="shrink-0">
               <div className="w-8 h-1 bg-brand-light rounded-full mx-auto mt-3 mb-2" />
               <div className="flex items-center justify-between px-5 py-1">
-                <span id="config-sheet-title" className="font-extrabold text-brand-primary">{schema.title}</span>
+                <span id="config-sheet-title" className="font-extrabold text-brand-accent">{schema.title}</span>
                 <motion.button
                   id="config-close-btn"
                   whileTap={{ scale: 0.9 }}

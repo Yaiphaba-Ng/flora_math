@@ -72,7 +72,7 @@ export default function Home() {
         animate={{ opacity: 1, scale: 1 }}
         className="w-full bg-brand-light rounded-3xl p-8 mb-12 text-center shadow-sm relative overflow-hidden"
       >
-        <Sparkles className="absolute top-4 right-4 text-brand-primary opacity-50" size={32} />
+        {/* <Sparkles className="absolute top-4 right-4 text-brand-primary opacity-50" size={32} /> */}
         <motion.p
           key={quote ?? "default"}
           initial={{ opacity: 0, y: 6 }}
@@ -127,7 +127,7 @@ export default function Home() {
                   </motion.button>
 
                   <div className="pr-8">
-                    <h4 className="text-xl font-bold text-brand-primary mb-2">{mod.title}</h4>
+                    <h4 id="quiz-card-title" className="text-xl font-bold text-brand-accent mb-2">{mod.title}</h4>
                     <p className="text-text-muted text-sm">{mod.desc}</p>
                   </div>
 
