@@ -1,10 +1,10 @@
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { generateText } from '@/lib/llmClient';
 import { prisma } from '@/lib/prisma';
 
 const FALLBACK_QUOTE = "You are capable of incredible things. Keep learning and growing every single day!";
-const DEFAULT_PROMPT = "Generate a single, very short, highly positive and encouraging quote about learning, math, or personal growth. Do not include quotes around the text. Maximum 2 short sentences. Sound friendly and warm.";
+const DEFAULT_PROMPT = "Generate a single, very short, highly positive and encouraging quote about learning and personal growth. Maximum 2 short sentences. Sound friendly and warm with cutesy inspirational vibes.";
 
 export async function GET() {
   try {

@@ -5,12 +5,12 @@ import { prisma } from '@/lib/prisma';
 
 const FALLBACK_PHRASE = "Keep going! You've got this!";
 
-const DEFAULT_PROMPT = `Generate exactly ONE unique, warm and encouraging short phrase for a student who just got a math question wrong.
+const DEFAULT_PROMPT = `You are a gentle, supportive companion in a magical garden of math.
+Generate exactly ONE short, encouraging phrase (6-10 words) for someone who just got a question wrong.
 Rules:
-- Phrase must be 3-6 words MAX
-- Sound gentle, sweet and motivating—not sarcastic
+- Sound sweet, warm, and motivating.
 - Return ONLY a valid JSON object with a single "phrase" key
-Example format: { "phrase": "You're doing great, try again!" }`;
+Example: {"phrase": "Every petal grows with practice! 🌸" }`;
 
 export async function GET() {
   try {
