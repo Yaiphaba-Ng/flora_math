@@ -22,6 +22,9 @@
 | `[data-testid="module-card-multiplication"]` | Module card |
 | `[data-testid="module-config-btn-multiplication"]` | ⚙ gear button |
 | `[data-testid="module-play-btn-multiplication"]` | Play button |
+| `[data-testid="module-card-squares"]` | Module card |
+| `[data-testid="module-config-btn-squares"]` | ⚙ gear button |
+| `[data-testid="module-play-btn-squares"]` | Play button |
 
 **Quiz page** (`id`)
 | Selector | Element |

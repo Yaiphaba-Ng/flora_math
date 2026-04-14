@@ -85,15 +85,14 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
     ],
   },
   {
-    slug: "squares_cubes",
-    title: "Squares & Cubes",
+    slug: "squares",
+    title: "Square Numbers",
     emoji: "🔢",
-    sentenceTemplate: "Square & cube every number from {range_start} to {range_end}",
+    sentenceTemplate: "Square every number from {range_start} to {range_end}",
     computeMaxQuestions: (cfg) => {
       const start = Number(cfg.range_start ?? 1);
       const end = Number(cfg.range_end ?? 20);
-      // 2 questions per number (square + cube)
-      return Math.max(1, (Math.abs(end - start) + 1) * 2);
+      return Math.max(1, Math.abs(end - start) + 1);
     },
     fields: [
       {

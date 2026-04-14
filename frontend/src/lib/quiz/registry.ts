@@ -1,8 +1,10 @@
 import { BaseQuizModule } from "./base_module";
 import { MultiplicationModule } from "./modules/multiplication";
+import { SquaresModule } from "./modules/squares";
 
 const modules: BaseQuizModule[] = [
   new MultiplicationModule(),
+  new SquaresModule(),
 ];
 
 export const getModules = () => modules;
