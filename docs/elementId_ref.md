@@ -22,15 +22,15 @@
 | `[data-testid="module-card-multiplication"]` | Module card |
 | `[data-testid="module-config-btn-multiplication"]` | ⚙ gear button |
 | `[data-testid="module-start-btn-multiplication"]` | Start button |
-| `[data-testid="module-card-squares"]` | Module card |
-| `[data-testid="module-config-btn-squares"]` | ⚙ gear button |
-| `[data-testid="module-start-btn-squares"]` | Start button |
-| `[data-testid="module-card-cubes"]` | Module card |
-| `[data-testid="module-config-btn-cubes"]` | ⚙ gear button |
-| `[data-testid="module-start-btn-cubes"]` | Start button |
+| `[data-testid="module-card-powers"]` | Module card (Squares & Cubes) |
+| `[data-testid="module-config-btn-powers"]` | ⚙ gear button |
+| `[data-testid="module-start-btn-powers"]` | Start button |
 | `[data-testid="module-card-addition_subtraction"]` | Module card |
 | `[data-testid="module-config-btn-addition_subtraction"]` | ⚙ gear button |
 | `[data-testid="module-start-btn-addition_subtraction"]` | Start button |
+| `[data-testid="module-card-randomized"]` | Module card (Mix) |
+| `[data-testid="module-config-btn-randomized"]` | ⚙ gear button |
+| `[data-testid="module-start-btn-randomized"]` | Start button |
 
 **Quiz page** (`id`)
 | Selector | Element |

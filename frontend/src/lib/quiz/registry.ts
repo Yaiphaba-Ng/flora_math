@@ -1,13 +1,13 @@
 import { BaseQuizModule } from "./base_module";
 import { MultiplicationModule } from "./modules/multiplication";
-import { SquaresModule } from "./modules/squares";
-import { CubesModule } from "./modules/cubes";
+import { PowersModule } from "./modules/powers";
+import { RandomizedModule } from "./modules/randomized";
 import { AdditionSubtractionModule } from "./modules/addition_subtraction";
 
 const modules: BaseQuizModule[] = [
   new MultiplicationModule(),
-  new SquaresModule(),
-  new CubesModule(),
+  new PowersModule(),
+  new RandomizedModule(),
   new AdditionSubtractionModule(),
 ];
 

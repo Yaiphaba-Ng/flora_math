@@ -15,14 +15,24 @@ interface QuizConfigSheetProps {
 }
 
 // Live sentence preview with pink-highlighted values
-function LiveSentence({ template, draft }: { template: string; draft: Record<string, unknown> }) {
+function LiveSentence({ template, draft, schema }: { template: string; draft: Record<string, unknown>; schema: any }) {
   const parts = template.split(/(\{[^}]+\})/g);
   return (
     <p className="text-sm font-semibold text-text-muted leading-relaxed text-center">
       {parts.map((part, i) => {
         const match = part.match(/^\{(.+)\}$/);
         if (match) {
-          const val = String(draft[match[1]] ?? "?");
+          const key = match[1];
+          const field = schema.fields.find((f: any) => f.key === key);
+          let val = String(draft[key] ?? "?");
+          
+          if (field?.type === "toggle" && field.toggleLabels) {
+            val = draft[key] ? field.toggleLabels.on : field.toggleLabels.off;
+          } else if (field?.type === "select" && field.options) {
+            const option = field.options.find((o: any) => o.value === draft[key]);
+            if (option) val = option.label;
+          }
+          
           return (
             <span
               key={i}
@@ -35,6 +45,45 @@ function LiveSentence({ template, draft }: { template: string; draft: Record<str
         return <span key={i}>{part}</span>;
       })}
     </p>
+  );
+}
+
+// Custom Segmented Picker for select-type fields
+function SegmentedPicker({ field, value, onChange }: { 
+  field: ConfigField; value: any; onChange: (v: any) => void; 
+}) {
+  if (!field.options) return null;
+  
+  return (
+    <div className="mx-5 mb-4">
+      <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2 px-1 opacity-80">
+        {field.label}
+      </p>
+      <div className="bg-brand-light/40 p-1 rounded-2xl flex gap-1 border border-brand-light/30 relative shadow-inner">
+        {field.options.map((opt) => {
+          const isActive = value === opt.value;
+          return (
+            <motion.button
+              key={String(opt.value)}
+              onClick={() => onChange(opt.value)}
+              whileTap={{ scale: 0.97 }}
+              className={`relative flex-1 py-2.5 rounded-xl text-sm font-extrabold transition-all z-10 ${
+                isActive ? "text-white" : "text-text-muted/70 hover:text-brand-primary"
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId={`active-pill-${field.key}`}
+                  className="absolute inset-0 bg-brand-primary rounded-xl shadow-[0_4px_12px_rgba(255,182,193,0.4)] -z-10"
+                  transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                />
+              )}
+              {opt.label}
+            </motion.button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -305,6 +354,7 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
   const numberFields = schema.fields.filter((f) => f.type === "number");
   const sliderFields = schema.fields.filter((f) => f.type === "slider");
   const toggleFields = schema.fields.filter((f) => f.type === "toggle");
+  const selectFields = schema.fields.filter((f) => f.type === "select");
 
   // Split number fields: first two side-by-side, rest below centered
   const pairFields = numberFields.slice(0, 2);
@@ -355,8 +405,23 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
                 id="config-sheet-preview"
                 className="mx-5 mb-3 px-4 py-2.5 bg-brand-light/40 rounded-2xl"
               >
-                <LiveSentence template={schema.sentenceTemplate} draft={draft} />
-              </motion.div>
+                <LiveSentence template={schema.sentenceTemplate} draft={draft} schema={schema} />              </motion.div>
+
+              {/* Select Fields (Segmented Pickers) */}
+              {selectFields.map((field, idx) => (
+                <motion.div
+                  key={field.key}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 + (idx * 0.05) }}
+                >
+                  <SegmentedPicker
+                    field={field}
+                    value={draft[field.key]}
+                    onChange={(v) => updateField(field.key, v)}
+                  />
+                </motion.div>
+              ))}
 
               {/* First two number fields side-by-side */}
               {pairFields.length > 0 && (
@@ -431,7 +496,12 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
                     >
                       <span className="text-sm font-semibold text-text-main">{field.label}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-text-muted">{draft[field.key] ? "On" : "Off"}</span>
+                        <span className="text-xs font-semibold text-text-muted">
+                          {draft[field.key] 
+                            ? (field.toggleLabels?.on ?? "On") 
+                            : (field.toggleLabels?.off ?? "Off")
+                          }
+                        </span>
                         <div className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${draft[field.key] ? "bg-brand-accent/70 shadow-lg shadow-brand-primary/30" : "bg-brand-primary/50"}`}>
                           <motion.span
                             animate={{

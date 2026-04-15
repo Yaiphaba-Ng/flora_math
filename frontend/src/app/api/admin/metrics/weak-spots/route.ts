@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const moduleFilter = searchParams.get("module") || "all";
-    const where = moduleFilter !== "all" ? { module_slug: moduleFilter } : {};
+    const where = (moduleFilter !== "all" && moduleFilter !== "randomized") ? { module_slug: moduleFilter } : {};
 
     const metrics = await prisma.questionMetric.findMany({ where });
     

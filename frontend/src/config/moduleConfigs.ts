@@ -2,7 +2,7 @@
 // When adding a new module, just add an entry here — the QuizConfigSheet
 // renders it automatically without any UI code changes.
 
-export type FieldType = "number" | "slider" | "toggle";
+export type FieldType = "number" | "slider" | "toggle" | "select";
 
 export interface ConfigField {
   key: string;
@@ -10,7 +10,9 @@ export interface ConfigField {
   type: FieldType;
   min?: number;         // soft floor for validation only — no arbitrary upper cap
   max?: number;         // only set when the field uses a slider (type: "slider")
-  defaultValue: number | boolean;
+  defaultValue: string | number | boolean;
+  options?: { label: string; value: string | number | boolean }[]; // For select type
+  toggleLabels?: { on: string; off: string }; // For boolean toggles
   hint?: string;
 }
 
@@ -40,7 +42,7 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
     slug: "multiplication",
     title: "Multiplication Tables",
     emoji: "✖️",
-    sentenceTemplate: "Quiz me on the {range_start}× to {range_end}× tables, each up to ×{length}",
+    sentenceTemplate: "Quiz me on the tables of {range_start} to {range_end}, each upto {length}",
     computeMaxQuestions: (cfg) => {
       const start = Number(cfg.range_start ?? 10);
       const end = Number(cfg.range_end ?? 20);
@@ -85,16 +87,27 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
     ],
   },
   {
-    slug: "squares",
-    title: "Squares",
+    slug: "powers",
+    title: "Squares & Cubes",
     emoji: "🔢",
-    sentenceTemplate: "Square every number from {range_start} to {range_end}",
+    sentenceTemplate: "Quiz me on {mode} of numbers from {range_start} to {range_end}",
     computeMaxQuestions: (cfg) => {
       const start = Number(cfg.range_start ?? 1);
       const end = Number(cfg.range_end ?? 20);
       return Math.max(1, Math.abs(end - start) + 1);
     },
     fields: [
+      {
+        key: "mode",
+        label: "Mode",
+        type: "select",
+        defaultValue: "squares",
+        options: [
+          { label: "Squares", value: "squares" },
+          { label: "Cubes", value: "cubes" },
+          { label: "Squares & Cubes", value: "mixed" },
+        ],
+      },
       {
         key: "range_start",
         label: "Start from",
@@ -113,38 +126,10 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
     ],
   },
   {
-    slug: "cubes",
-    title: "Cubes",
-    emoji: "🧊",
-    sentenceTemplate: "Cube every number from {range_start} to {range_end}",
-    computeMaxQuestions: (cfg) => {
-      const start = Number(cfg.range_start ?? 1);
-      const end = Number(cfg.range_end ?? 12);
-      return Math.max(1, Math.abs(end - start) + 1);
-    },
-    fields: [
-      {
-        key: "range_start",
-        label: "Start from",
-        type: "number",
-        min: 1,
-        defaultValue: 1,
-      },
-      {
-        key: "range_end",
-        label: "Up to",
-        type: "number",
-        min: 1,
-        defaultValue: 12,
-      },
-      numQuestionsField,
-    ],
-  },
-  {
     slug: "addition_subtraction",
     title: "Addition & Subtraction",
     emoji: "➕",
-    sentenceTemplate: "Generate {digits}-digit addition & subtraction problems",
+    sentenceTemplate: "Quiz me on {digits}-digit addition & subtraction",
     // No hard cap — questions are randomly generated, effectively unlimited
     fields: [
       {
@@ -160,6 +145,15 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
         type: "toggle",
         defaultValue: false,
       },
+      numQuestionsField,
+    ],
+  },
+  {
+    slug: "randomized",
+    title: "Randomized Mix",
+    emoji: "🎲",
+    sentenceTemplate: "Surprise me with {num_questions} questions from across the entire curriculum",
+    fields: [
       numQuestionsField,
     ],
   },
