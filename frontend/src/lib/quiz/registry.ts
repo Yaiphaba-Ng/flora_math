@@ -7,8 +7,8 @@ import { AdditionSubtractionModule } from "./modules/addition_subtraction";
 const modules: BaseQuizModule[] = [
   new MultiplicationModule(),
   new PowersModule(),
-  new RandomizedModule(),
   new AdditionSubtractionModule(),
+  new RandomizedModule(),
 ];
 
 export const getModules = () => modules;
