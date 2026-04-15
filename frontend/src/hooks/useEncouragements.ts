@@ -37,6 +37,11 @@ export function useEncouragements() {
 
     if (!Array.isArray(initial) || initial.length === 0) {
       initial = [...FALLBACK_PHRASES].sort(() => Math.random() - 0.5).slice(0, QUEUE_TARGET_SIZE);
+    } else {
+      // Sanitize: old cache versions may have stored {phrase: string} objects instead of strings
+      initial = initial.map((item: any) =>
+        typeof item === "string" ? item : (item?.phrase ?? FALLBACK_PHRASES[0])
+      ).filter(Boolean);
     }
     setQueue(initial);
   }, []);

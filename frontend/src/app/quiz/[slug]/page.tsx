@@ -39,20 +39,21 @@ export default function QuizPage() {
   }, [slug]);
 
   // Show full-screen feedback on every submission
+  // Also pre-advances immediately so the next question is ready under the overlay
   useEffect(() => {
     if (!feedback) return;
     if (!feedback.isCorrect) {
       setCurrentEncouragement(pullEncouragement());
     }
     setShowFeedback(true);
+    advanceToNext(); // pre-load next question now — it renders beneath the overlay
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feedback?.id]);
 
-  // Dismiss feedback — reset timer only now so feedback display time isn't counted
+  // Dismiss feedback — next question is already loaded, just hide the overlay
   const dismissFeedback = useCallback(() => {
     setShowFeedback(false);
-    advanceToNext();
-  }, [advanceToNext]);
+  }, []);
 
   // Keep input focused when returning to the question
   useEffect(() => {
@@ -96,8 +97,8 @@ export default function QuizPage() {
     );
   }
 
-  // ── FINISHED STATE ─────────────────────────────────────────────────────────
-  if (isFinished) {
+  // ── FINISHED STATE — wait for any overlay to dismiss first ────────────────
+  if (isFinished && !showFeedback) {
     const pct = Math.round((score / totalQuestions) * 100);
     return (
       <div id="quiz-results-screen" className="min-h-screen flex items-center justify-center p-8">
@@ -147,167 +148,137 @@ export default function QuizPage() {
   return (
     <main id="quiz-page" data-quiz-slug={slug} className="min-h-screen flex flex-col items-center justify-start p-3 pt-4 max-w-lg mx-auto">
 
-      {/* ── Unified Game Card ── */}
-      <motion.div
-        className="w-full bg-brand-light rounded-3xl shadow-xl shadow-brand-primary/10 border border-brand-primary/20 overflow-hidden"
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 350, damping: 30 }}
-      >
-        {/* ── Card Header: back + progress + score ── */}
-        <div className="bg-brand-light/40 px-4 py-3 flex items-center gap-3 border-b border-brand-light/50">
-          <button
-            id="quiz-back-btn"
-            onClick={() => router.push("/")}
-            className="shrink-0 w-9 h-9 flex items-center justify-center text-text-muted hover:text-brand-primary transition rounded-full hover:bg-white/70"
-          >
-            <ArrowLeft size={18} />
-          </button>
+      {/* ── Relative wrapper: game card + in-place feedback overlay ── */}
+      <div className="relative w-full">
 
-          {/* Progress bar track */}
-          <div id="quiz-progress-bar-track" className="flex-1 bg-white/70 rounded-full h-2.5 overflow-hidden shadow-inner">
+        {/* Game Card */}
+        <motion.div
+          className="w-full bg-brand-light rounded-3xl shadow-xl shadow-brand-primary/10 border border-brand-primary/20 overflow-hidden"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+        >
+          {/* ── Card Header ── */}
+          <div className="bg-brand-light/40 px-4 py-3 flex items-center gap-3 border-b border-brand-light/50">
+            <button
+              id="quiz-back-btn"
+              onClick={() => router.push("/")}
+              className="shrink-0 w-9 h-9 flex items-center justify-center text-text-muted hover:text-brand-primary transition rounded-full hover:bg-white/70"
+            >
+              <ArrowLeft size={18} />
+            </button>
+
+            <div id="quiz-progress-bar-track" className="flex-1 bg-white/70 rounded-full h-2.5 overflow-hidden shadow-inner">
+              <motion.div
+                id="quiz-progress-bar"
+                className="h-full bg-brand-primary rounded-full"
+                animate={{ width: `${progressPct}%` }}
+                transition={{ duration: 0.4 }}
+              />
+            </div>
+
             <motion.div
-              id="quiz-progress-bar"
-              className="h-full bg-brand-primary rounded-full"
-              animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 0.4 }}
-            />
+              id="quiz-progress-counter"
+              key={questionIndex}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.25 }}
+              className="shrink-0 flex items-center gap-1 bg-white/80 border border-brand-primary/15 px-3 py-1 rounded-full shadow-sm"
+            >
+              <span className="text-xs font-extrabold text-brand-primary tabular-nums">{questionIndex - 1}</span>
+              <span className="text-xs font-bold text-text-muted">/</span>
+              <span className="text-xs font-bold text-text-muted tabular-nums">{totalQuestions}</span>
+            </motion.div>
           </div>
 
-          {/* Progress pill */}
-          <motion.div
-            id="quiz-progress-counter"
-            key={questionIndex}
-            initial={{ scale: 1 }}
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 0.25 }}
-            className="shrink-0 flex items-center gap-1 bg-white/80 border border-brand-primary/15 px-3 py-1 rounded-full shadow-sm"
-          >
-            <span className="text-xs font-extrabold text-brand-primary tabular-nums">{questionIndex - 1}</span>
-            <span className="text-xs font-bold text-text-muted">/</span>
-            <span className="text-xs font-bold text-text-muted tabular-nums">{totalQuestions}</span>
-          </motion.div>
-        </div>
-
-        {/* ── Question + Answer form body ── */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentQuestion}
-            initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 1.04, rotate: 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className="px-5 pt-6 pb-5"
-          >
-            {/* Label */}
-            <p className="text-text-muted text-xs font-semibold tracking-widest uppercase text-center opacity-60 mb-3">
-              What is
-            </p>
-
-            {/* Question */}
-            <h2
-              id="quiz-question-text"
-              className="text-4xl font-extrabold text-brand-accent text-center mb-6 tabular-nums"
-            >
-              {currentQuestion}
-            </h2>
-
-            {/* Form */}
-            <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input
-                id="quiz-answer-input"
-                ref={inputRef}
-                type="number"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                className="w-full text-center text-3xl font-bold bg-white/90 rounded-2xl px-4 py-3.5 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                placeholder="?"
-                autoFocus
-                readOnly={showFeedback}
-              />
-              <BouncyButton
-                id="quiz-submit-btn"
-                type="submit"
-                variant="primary"
-                className="w-full text-lg py-4 rounded-2xl"
-                disabled={showFeedback || !answer.trim()}
-              >
-                Submit
-              </BouncyButton>
-            </form>
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
-
-      {/* ── Full-screen feedback overlay ── */}
-      <AnimatePresence>
-        {showFeedback && feedback && (
-          <motion.div
-            id="quiz-feedback-overlay"
-            data-correct={feedback.isCorrect}
-            key={feedback.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={dismissFeedback}
-            className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-8 cursor-pointer backdrop-blur-md ${
-              feedback.isCorrect
-                ? "bg-green-50/90"
-                : "bg-red-50/90"
-            }`}
-          >
+          {/* ── Question + Form ── */}
+          <AnimatePresence mode="wait">
             <motion.div
-              initial={{ scale: 0.5, rotate: feedback.isCorrect ? 0 : -5 }}
-              animate={{ 
-                scale: 1, 
-                rotate: 0,
-                boxShadow: feedback.isCorrect 
-                  ? "0 0 60px 10px rgba(134, 239, 172, 0.2)" 
-                  : "0 0 60px 10px rgba(252, 165, 165, 0.2)"
-              }}
-              exit={{ scale: 1.5, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="text-center max-w-md p-10 rounded-[3rem] bg-white shadow-2xl relative overflow-hidden border border-brand-light/20"
+              key={currentQuestion}
+              initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 1.04, rotate: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 28 }}
+              className="px-5 pt-6 pb-5"
             >
-              {/* Decorative background glow */}
-              <div className={`absolute inset-0 opacity-5 ${feedback.isCorrect ? "bg-green-300" : "bg-red-300"}`} />
+              <p className="text-text-muted text-xs font-semibold tracking-widest uppercase text-center opacity-60 mb-3">
+                What is
+              </p>
+              <h2
+                id="quiz-question-text"
+                className="text-4xl font-extrabold text-brand-accent text-center mb-6 tabular-nums"
+              >
+                {currentQuestion}
+              </h2>
+              <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <input
+                  id="quiz-answer-input"
+                  ref={inputRef}
+                  type="number"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  className="w-full text-center text-3xl font-bold bg-white/90 rounded-2xl px-4 py-3.5 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="?"
+                  autoFocus
+                  readOnly={showFeedback}
+                />
+                <BouncyButton
+                  id="quiz-submit-btn"
+                  type="submit"
+                  variant="primary"
+                  className="w-full text-lg py-4 rounded-2xl"
+                  disabled={showFeedback || !answer.trim()}
+                >
+                  Submit
+                </BouncyButton>
+              </form>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
 
-              {/* Title */}
-              <h2 className={`text-5xl font-extrabold tracking-tight mb-8 relative z-10 ${
-                feedback.isCorrect ? "text-green-600/70" : "text-brand-accent"
+        {/* ── In-place feedback — absolute over the card ── */}
+        <AnimatePresence>
+          {showFeedback && feedback && (
+            <motion.div
+              id="quiz-feedback-overlay"
+              data-correct={feedback.isCorrect}
+              key={feedback.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={dismissFeedback}
+              className={`absolute inset-0 z-10 rounded-3xl flex flex-col items-center justify-center cursor-pointer ${
+                feedback.isCorrect ? "bg-green-50/95" : "bg-red-50/95"
+              }`}
+            >
+              <p className={`text-2xl font-extrabold mb-4 ${
+                feedback.isCorrect ? "text-green-500" : "text-brand-accent"
               }`}>
                 {feedback.isCorrect ? "Yay! 🌸" : "Oops! 💔"}
-              </h2>
+              </p>
 
-              {/* Question recap & answer */}
-              <div className="bg-brand-light/20 px-10 py-8 rounded-[2.5rem] border-2 border-white/80 mb-4 inline-block relative z-10 shadow-inner">
-                 <p className="text-4xl font-extrabold text-brand-primary tabular-nums">
+              <div className={`inline-block px-6 py-3 rounded-2xl mb-3 ${
+                feedback.isCorrect ? "bg-green-100/80" : "bg-red-100/80"
+              }`}>
+                <p className="text-3xl font-extrabold text-brand-primary tabular-nums">
                   {feedback.questionText} ={" "}
-                  <span className={`${
-                    feedback.isCorrect ? "text-green-600/70" : "text-brand-accent"
-                  }`}>
+                  <span className={feedback.isCorrect ? "text-green-500" : "text-brand-accent"}>
                     {feedback.correctAnswer}
                   </span>
-                 </p>
+                </p>
               </div>
 
               {!feedback.isCorrect && (
-                <motion.p 
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="text-lg font-bold text-red-400 mt-4 relative z-10"
-                >
+                <p className="text-sm font-semibold text-text-muted mt-1 px-8 text-center">
                   {currentEncouragement}
-                </motion.p>
+                </p>
               )}
-
-              {/* Tap hint */}
-              <p className="text-xs font-bold text-text-muted mt-10 animate-bounce uppercase tracking-widest opacity-50 relative z-10">Tap to continue</p>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+
+      </div>
 
     </main>
   );
