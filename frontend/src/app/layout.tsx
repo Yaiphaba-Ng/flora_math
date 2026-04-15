@@ -3,6 +3,7 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { FloatingFlowers } from "@/components/ui/FloatingFlowers";
+import { GlobalLoadingOverlay } from "@/components/ui/GlobalLoadingOverlay";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${nunito.variable} antialiased selection:bg-brand-light`} suppressHydrationWarning>
         <Providers>
+          <GlobalLoadingOverlay />
           <FloatingFlowers />
           {children}
         </Providers>

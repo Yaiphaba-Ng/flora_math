@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronUp, ChevronDown, Play } from "lucide-react";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { X, ChevronUp, ChevronDown, Play, Loader2 } from "lucide-react";
+import { useState, useCallback, useMemo, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { MODULE_CONFIG_SCHEMAS, ConfigField } from "@/config/moduleConfigs";
 import { useConfigStore } from "@/store/useConfigStore";
 
@@ -71,24 +72,26 @@ function NumberStepper({ field, value, onChange }: {
           <ChevronDown size={22} />
         </motion.button>
 
-        <motion.div
-          key={isFocused ? "focused" : value}
-          initial={isFocused ? {} : { scale: 1.2 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 500, damping: 15 }}
-        >
-          <input
-            data-testid={`config-stepper-input-${field.key}`}
-            type="number"
-            min={field.min ?? 1}
-            value={value}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onChange={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) onChange(clamp(v)); }}
-            className="w-16 text-center text-2xl font-extrabold text-brand-accent/70 bg-transparent border-b-2 border-brand-primary outline-none tabular-nums py-0.5
-                       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all focus:scale-110"
-          />
-        </motion.div>
+        <div className="w-16 border-b-2 border-brand-primary">
+          <motion.div
+            key={isFocused ? "focused" : value}
+            initial={isFocused ? {} : { scale: 1.2 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+          >
+            <input
+              data-testid={`config-stepper-input-${field.key}`}
+              type="number"
+              min={field.min ?? 1}
+              value={value}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onChange={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) onChange(clamp(v)); }}
+              className="w-full text-center text-2xl font-extrabold text-brand-accent/70 bg-transparent outline-none tabular-nums py-0.5
+                         [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all focus:scale-110"
+            />
+          </motion.div>
+        </div>
 
         <motion.button
           data-testid={`config-stepper-up-${field.key}`}
@@ -238,7 +241,27 @@ function SliderField({ field, value, dynamicMax, onChange }: {
   );
 }
 
+import { useLoadingStore } from "@/store/useLoadingStore";
+
+interface QuizConfigSheetProps {
+  slug: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onPlay: () => void;
+}
+
 export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigSheetProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const { setIsLoading } = useLoadingStore();
+
+  // Prefetch quiz page for faster transition
+  useEffect(() => {
+    if (isOpen) {
+      router.prefetch(`/quiz/${slug}`);
+    }
+  }, [isOpen, slug, router]);
+
   const schema = MODULE_CONFIG_SCHEMAS.find((s) => s.slug === slug);
   const { getModuleConfig, setModuleConfig } = useConfigStore();
 
@@ -248,9 +271,16 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
     setDraft((d) => ({ ...d, [key]: value }));
 
   const handlePlay = () => {
+    // Show the high-quality global loader INSTANTLY
+    setIsLoading(true);
+
+    // Save configuration immediately
     setModuleConfig(slug, draft);
-    onClose();
-    onPlay();
+    
+    // Use transition to keep the current UI snappy while the next page prepares
+    startTransition(() => {
+      onPlay();
+    });
   };
 
   useEffect(() => {
@@ -426,15 +456,18 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 animate={{
-                  boxShadow: ["0 4px 6px -1px rgba(255,182,193,0.3)", "0 10px 15px -3px rgba(255,182,193,0.5)", "0 4px 6px -1px rgba(255,182,193,0.3)"]
+                  boxShadow: isPending 
+                    ? "0 0 20px rgba(255,182,193,0.6)" 
+                    : ["0 4px 6px -1px rgba(255,182,193,0.3)", "0 10px 15px -3px rgba(255,182,193,0.5)", "0 4px 6px -1px rgba(255,182,193,0.3)"]
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
                 onClick={handlePlay}
-                className="w-full bg-brand-primary text-white font-extrabold text-lg rounded-2xl py-4 flex items-center justify-center gap-2 shadow-md"
+                disabled={isPending}
+                className="w-full bg-brand-primary text-white font-extrabold text-lg rounded-2xl py-4 flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
               >
                 <Play size={20} fill="white" />
                 <span className="flex items-center gap-1.5">
-                  Start Quiz <span className="text-xl">🌸</span>
+                  Start Quiz <span className="text-xl">✨</span>
                 </span>
               </motion.button>
             </div>

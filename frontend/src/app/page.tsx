@@ -18,12 +18,17 @@ interface ModuleData {
   desc: string;
 }
 
+import { BespokeLoader } from "@/components/ui/BespokeLoader";
+
+import { useLoadingStore } from "@/store/useLoadingStore";
+
 export default function Home() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { getModuleConfig } = useConfigStore();
   const [configSlug, setConfigSlug] = useState<string | null>(null);
   const { quote, isFirstLoad } = useQuoteOfDay();
+  const { setIsLoading } = useLoadingStore();
 
   // PREFETCH ADMIN DATA AS SOON AS HOME PAGE MOUNTS
   useEffect(() => {
@@ -49,18 +54,11 @@ export default function Home() {
 
   // First-ever visit: show a short friendly splash until the quote arrives
   if (isFirstLoad) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-10 h-10 rounded-full border-4 border-brand-light border-t-brand-primary"
-        />
-      </div>
-    );
+    return <BespokeLoader />;
   }
 
   const handlePlay = (slug: string) => {
+    setIsLoading(true);
     router.push(`/quiz/${slug}`);
   };
 

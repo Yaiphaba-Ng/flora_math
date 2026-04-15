@@ -10,10 +10,15 @@ import { ArrowLeft } from "lucide-react";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useEncouragements } from "@/hooks/useEncouragements";
 
+import { BespokeLoader } from "@/components/ui/BespokeLoader";
+
+import { useLoadingStore } from "@/store/useLoadingStore";
+
 export default function QuizPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
+  const { setIsLoading } = useLoadingStore();
 
   const { getModuleConfig } = useConfigStore();
   const {
@@ -22,6 +27,13 @@ export default function QuizPage() {
     startSession, isStarting, submitAnswer,
     advanceToNext,
   } = useQuizSession(slug);
+
+  // Clear global loading state only when the session is actually ready
+  useEffect(() => {
+    if (!isStarting && currentQuestion) {
+      setIsLoading(false);
+    }
+  }, [isStarting, currentQuestion, setIsLoading]);
 
   const [answer, setAnswer] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
@@ -84,20 +96,7 @@ export default function QuizPage() {
 
   // ── LOADING STATE ──────────────────────────────────────────────────────────
   if (isStarting || (!currentQuestion && !isFinished)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          animate={{ 
-            scale: [1, 1.2, 1],
-            rotate: [0, 10, -10, 0]
-          }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-          className="text-7xl filter drop-shadow-md select-none"
-        >
-          🌸
-        </motion.div>
-      </div>
-    );
+    return <div className="min-h-screen bg-surface" />;
   }
 
   // ── FINISHED STATE — wait for any overlay to dismiss first ────────────────
