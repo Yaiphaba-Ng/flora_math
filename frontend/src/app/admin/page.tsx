@@ -83,6 +83,7 @@ export default function AdminDashboard() {
     queryFn: () => fetcher(`/admin/metrics/overview?module=${selectedModule}`),
     placeholderData: (prev) => prev || persistedData[`admin-overview-${selectedModule}`] || persistedData[`admin-overview-all`],
     staleTime: 10000, // 10s quiet revalidation
+    refetchOnMount: "always",
   });
 
   // Weak Spots
@@ -91,6 +92,7 @@ export default function AdminDashboard() {
     queryFn: () => fetcher(`/admin/metrics/weak-spots?module=${selectedModule}`),
     placeholderData: (prev) => prev || persistedData[`admin-weak-spots-${selectedModule}`] || persistedData[`admin-weak-spots-all`],
     staleTime: 15000,
+    refetchOnMount: "always",
   });
 
   // Sessions
@@ -99,6 +101,7 @@ export default function AdminDashboard() {
     queryFn: () => fetcher(`/admin/sessions/recent?module=${selectedModule}`),
     placeholderData: (prev) => prev || persistedData[`admin-recent-sessions-${selectedModule}`] || persistedData[`admin-recent-sessions-all`],
     staleTime: 10000,
+    refetchOnMount: "always",
   });
 
   // Persist "all" data as a global fallback whenever it updates

@@ -23,9 +23,9 @@ function LiveSentence({ template, draft }: { template: string; draft: Record<str
         if (match) {
           const val = String(draft[match[1]] ?? "?");
           return (
-            <span 
+            <span
               key={i}
-              className="inline-block text-brand-primary font-extrabold text-base mx-0.5 tabular-nums"
+              className="inline-block text-brand-accent/70 font-extrabold text-base mx-0.5 tabular-nums"
             >
               {val}
             </span>
@@ -52,14 +52,14 @@ function NumberStepper({ field, value, onChange }: {
       <div className="flex items-center justify-center gap-3">
         <motion.button
           data-testid={`config-stepper-down-${field.key}`}
-          whileHover={{ 
-            scale: 1.1, 
+          whileHover={{
+            scale: 1.1,
             backgroundColor: "#ffffff",
             borderColor: "#FFB6C1",
             boxShadow: "0 10px 15px -3px rgba(255, 182, 193, 0.3)"
           }}
-          whileTap={{ 
-            scale: 0.85, 
+          whileTap={{
+            scale: 0.85,
             rotate: -12,
             backgroundColor: "#FFB6C1",
             color: "#ffffff"
@@ -85,21 +85,21 @@ function NumberStepper({ field, value, onChange }: {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             onChange={(e) => { const v = parseInt(e.target.value, 10); if (!isNaN(v)) onChange(clamp(v)); }}
-            className="w-16 text-center text-2xl font-extrabold text-brand-primary bg-transparent border-b-2 border-brand-primary outline-none tabular-nums py-0.5
+            className="w-16 text-center text-2xl font-extrabold text-brand-accent/70 bg-transparent border-b-2 border-brand-primary outline-none tabular-nums py-0.5
                        [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all focus:scale-110"
           />
         </motion.div>
 
         <motion.button
           data-testid={`config-stepper-up-${field.key}`}
-          whileHover={{ 
-            scale: 1.1, 
+          whileHover={{
+            scale: 1.1,
             backgroundColor: "#ffffff",
             borderColor: "#FFB6C1",
             boxShadow: "0 10px 15px -3px rgba(255, 182, 193, 0.3)"
           }}
-          whileTap={{ 
-            scale: 0.85, 
+          whileTap={{
+            scale: 0.85,
             rotate: 12,
             backgroundColor: "#FFB6C1",
             color: "#ffffff"
@@ -124,7 +124,7 @@ function SliderField({ field, value, dynamicMax, onChange }: {
   const isQuestions = field.key === "num_questions";
   const [isInteracting, setIsInteracting] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  
+
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const displayValue = Math.min(value, max);
   const percentage = max > min ? ((displayValue - min) / (max - min)) * 100 : 0;
@@ -153,7 +153,7 @@ function SliderField({ field, value, dynamicMax, onChange }: {
       <div className="bg-brand-light/30 rounded-2xl px-4 py-3 flex flex-col gap-2 border border-brand-light/10">
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{field.label}</p>
-          
+
           <motion.div
             key={isFocused ? "focused" : displayValue}
             initial={isFocused ? {} : { scale: 1.15 }}
@@ -172,7 +172,7 @@ function SliderField({ field, value, dynamicMax, onChange }: {
                 const v = parseInt(e.target.value, 10);
                 if (!isNaN(v)) handleSnapping(v);
               }}
-              className="w-14 text-center text-sm font-extrabold text-brand-primary bg-brand-light/60 border-2 border-brand-light rounded-xl py-1 outline-none focus:border-brand-primary transition
+              className="w-14 text-center text-sm font-extrabold text-brand-accent/70 bg-brand-light/60 border-2 border-brand-light rounded-xl py-1 outline-none focus:border-brand-primary transition
                          [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </motion.div>
@@ -182,34 +182,34 @@ function SliderField({ field, value, dynamicMax, onChange }: {
           {/* Custom Track Background */}
           <div className="absolute inset-0 flex items-center pointer-events-none">
             <div className="w-full h-2 bg-brand-light rounded-full overflow-hidden">
-               <motion.div 
-                 className="h-full bg-brand-primary/20"
-                 animate={{ width: `${percentage}%` }}
-                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-               />
+              <motion.div
+                className="h-full bg-brand-primary/20"
+                animate={{ width: `${percentage}%` }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
             </div>
           </div>
 
           {/* Custom Buttery Smooth Thumb */}
           <motion.div
             className="absolute top-1/2 w-7 h-7 rounded-full bg-brand-primary border-4 border-white shadow-lg pointer-events-none z-0"
-            animate={{ 
+            animate={{
               left: `${percentage}%`,
               scale: isInteracting ? 1.35 : 1,
-              boxShadow: isInteracting 
-                ? "0 10px 20px -5px rgba(255, 182, 193, 0.6)" 
+              boxShadow: isInteracting
+                ? "0 10px 20px -5px rgba(255, 182, 193, 0.6)"
                 : "0 4px 6px -1px rgba(255, 182, 193, 0.3)"
             }}
             whileHover={{ scale: 1.15 }}
-            transition={{ 
+            transition={{
               left: { type: "spring", stiffness: 450, damping: 40, mass: 0.8 },
               scale: { type: "spring", stiffness: 500, damping: 20 },
               boxShadow: { duration: 0.2 }
             }}
             style={{ x: "-50%", y: "-50%" }}
           >
-             {/* Core glow */}
-             <div className="absolute inset-0 rounded-full bg-brand-primary shadow-[0_0_15px_rgba(255,182,193,0.4)] opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* Core glow */}
+            <div className="absolute inset-0 rounded-full bg-brand-primary shadow-[0_0_15px_rgba(255,182,193,0.4)] opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.div>
 
           {/* Invisible Real Input for Interaction */}
@@ -300,9 +300,9 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
           >
             {/* ── Pinned header ── */}
             <div className="shrink-0">
-              <div className="w-8 h-1 bg-brand-light rounded-full mx-auto mt-3 mb-2" />
+              <div className="w-8 h-1 bg-brand-light rounded-full mx-auto mt-2 mb-2" />
               <div className="flex items-center justify-between px-5 py-1">
-                <span id="config-sheet-title" className="font-extrabold text-brand-accent">{schema.title}</span>
+                <span id="config-sheet-title" className="text-lg font-extrabold text-brand-accent/70">{schema.title}</span>
                 <motion.button
                   id="config-close-btn"
                   whileTap={{ scale: 0.9 }}
@@ -316,13 +316,13 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
             </div>
 
             {/* ── Scrollable content ── */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden pb-2">
+            <div className="flex-1 pb-2">
               {/* Live sentence preview */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                id="config-sheet-preview" 
+                id="config-sheet-preview"
                 className="mx-5 mb-3 px-4 py-2.5 bg-brand-light/40 rounded-2xl"
               >
                 <LiveSentence template={schema.sentenceTemplate} draft={draft} />
@@ -330,7 +330,7 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
 
               {/* First two number fields side-by-side */}
               {pairFields.length > 0 && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15 }}
@@ -349,7 +349,7 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
 
               {/* Remaining number fields — centered, half-width */}
               {extraFields.length > 0 && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -402,9 +402,9 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
                       <span className="text-sm font-semibold text-text-main">{field.label}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-text-muted">{draft[field.key] ? "On" : "Off"}</span>
-                        <div className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${draft[field.key] ? "bg-brand-primary shadow-lg shadow-brand-primary/30" : "bg-brand-light"}`}>
+                        <div className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${draft[field.key] ? "bg-brand-accent/70 shadow-lg shadow-brand-primary/30" : "bg-brand-primary/50"}`}>
                           <motion.span
-                            animate={{ 
+                            animate={{
                               x: draft[field.key] ? 24 : 4,
                               scale: draft[field.key] ? 1.1 : 1
                             }}
@@ -425,14 +425,14 @@ export function QuizConfigSheet({ slug, isOpen, onClose, onPlay }: QuizConfigShe
                 id="config-start-btn"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                animate={{ 
+                animate={{
                   boxShadow: ["0 4px 6px -1px rgba(255,182,193,0.3)", "0 10px 15px -3px rgba(255,182,193,0.5)", "0 4px 6px -1px rgba(255,182,193,0.3)"]
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
                 onClick={handlePlay}
                 className="w-full bg-brand-primary text-white font-extrabold text-lg rounded-2xl py-4 flex items-center justify-center gap-2 shadow-md"
               >
-                <Play size={20} fill="white" /> 
+                <Play size={20} fill="white" />
                 <span className="flex items-center gap-1.5">
                   Start Quiz <span className="text-xl">🌸</span>
                 </span>

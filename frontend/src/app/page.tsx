@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetcher } from "@/lib/apiClient";
 import { SoftCard } from "@/components/ui/SoftCard";
 import { motion } from "framer-motion";
@@ -8,7 +8,7 @@ import { Calculator, Sparkles, Settings } from "lucide-react";
 import { BouncyButton } from "@/components/ui/BouncyButton";
 import { QuizConfigSheet } from "@/components/quiz/QuizConfigSheet";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useQuoteOfDay } from "@/hooks/useQuoteOfDay";
 
@@ -20,9 +20,27 @@ interface ModuleData {
 
 export default function Home() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { getModuleConfig } = useConfigStore();
   const [configSlug, setConfigSlug] = useState<string | null>(null);
   const { quote, isFirstLoad } = useQuoteOfDay();
+
+  // PREFETCH ADMIN DATA AS SOON AS HOME PAGE MOUNTS
+  useEffect(() => {
+    // Prefetch "all" views for admin dashboard so it's snappy
+    queryClient.prefetchQuery({
+      queryKey: ["admin", "overview", "all"],
+      queryFn: () => fetcher("/admin/metrics/overview?module=all"),
+    });
+    queryClient.prefetchQuery({
+      queryKey: ["admin", "weak-spots", "all"],
+      queryFn: () => fetcher("/admin/metrics/weak-spots?module=all"),
+    });
+    queryClient.prefetchQuery({
+      queryKey: ["admin", "recent-sessions", "all"],
+      queryFn: () => fetcher("/admin/sessions/recent?module=all"),
+    });
+  }, [queryClient]);
 
   const { data: modules, isLoading } = useQuery<ModuleData[]>({
     queryKey: ["modules"],
