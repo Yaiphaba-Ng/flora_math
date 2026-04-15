@@ -27,6 +27,9 @@ export default function QuizPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [currentEncouragement, setCurrentEncouragement] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  // Ref mirror of showFeedback for synchronous access in event handlers
+  const showFeedbackRef = useRef(false);
+  useEffect(() => { showFeedbackRef.current = showFeedback; }, [showFeedback]);
 
   // Load encouragement puller (handles background queueing)
   const { pullEncouragement } = useEncouragements();
@@ -55,7 +58,7 @@ export default function QuizPage() {
     setShowFeedback(false);
   }, []);
 
-  // Keep input focused when returning to the question
+  // Refocus input when feedback closes — keeps mobile keyboard open
   useEffect(() => {
     if (!showFeedback && inputRef.current && currentQuestion) {
       inputRef.current.focus();
@@ -221,6 +224,12 @@ export default function QuizPage() {
                   placeholder="?"
                   autoFocus
                   readOnly={showFeedback}
+                  onBlur={() => {
+                    // Prevent keyboard dismissal during feedback phase
+                    if (showFeedbackRef.current && inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }}
                 />
                 <BouncyButton
                   id="quiz-submit-btn"
@@ -248,8 +257,9 @@ export default function QuizPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
               onClick={dismissFeedback}
+              onPointerDown={(e) => e.preventDefault()}
               className={`absolute inset-0 z-10 rounded-3xl flex flex-col items-center justify-center cursor-pointer ${
-                feedback.isCorrect ? "bg-green-50/95" : "bg-red-50/95"
+                feedback.isCorrect ? "bg-green-50" : "bg-red-50"
               }`}
             >
               <p className={`text-2xl font-extrabold mb-4 ${
