@@ -9,71 +9,107 @@ export class RandomizedModule extends BaseQuizModule {
   title = "Randomized Mix";
   description = "A surprise mix of questions from all categories. Keeps your brain on its toes!";
 
-  generateQuestions(config: Record<string, any>): Question[] {
-    const totalTarget = Number(config.num_questions ?? 20);
-    // We generate a larger pool so useQuizSession can still prioritize weak spots 
-    // while maintaining a balanced distribution in the underlying set.
-    const poolSize = Math.max(100, totalTarget * 3);
-    
-    // 1. Setup pillars with their specific sub-configs
+  generateQuestions(config: Record<string, any>, weakSpots?: string[]): Question[] {
+    const totalTarget = Math.max(1, Number(config.num_questions ?? 20));
     const allConfigs = useConfigStore.getState().configs;
-    
+
+    // 1. Setup pillars
     const pillars = [
       { 
-        slug: 'multiplication',
         module: new MultiplicationModule(),
         config: allConfigs["multiplication"] || {}
       },
       { 
-        slug: 'powers',
         module: new PowersModule(),
         config: { ...(allConfigs["powers"] || {}), mode: 'mixed' }
       },
       { 
-        slug: 'addition_subtraction',
         module: new AdditionSubtractionModule(),
-        config: { ...(allConfigs["addition_subtraction"] || {}), num_questions: poolSize } 
+        // We might need more than the average if we are heavily picking weak spots from here
+        config: { ...(allConfigs["addition_subtraction"] || {}), num_questions: totalTarget } 
       }
     ];
 
-    // 2. Generate and shuffle individual pools
+    // 2. Generate individual pools and separate into weak vs normal
+    const prioritySet = new Set(weakSpots || []);
+    
     const pillarPools = pillars.map(p => {
-      const pool = p.module.generateQuestions(p.config);
-      // Fisher-Yates shuffle
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
-      return pool;
-    });
-
-    // 3. Balanced sampling (Round-Robin) into the large pool
-    const poolQuestions: Question[] = [];
-    const poolIndices = pillarPools.map(() => 0);
-    let totalPicked = 0;
-
-    while (totalPicked < poolSize) {
-      let pickedInThisRound = 0;
-      for (let i = 0; i < pillarPools.length; i++) {
-        if (totalPicked < poolSize && poolIndices[i] < pillarPools[i].length) {
-          poolQuestions.push(pillarPools[i][poolIndices[i]]);
-          poolIndices[i]++;
-          totalPicked++;
-          pickedInThisRound++;
+      const generated = p.module.generateQuestions(p.config);
+      
+      const weak: Question[] = [];
+      const normal: Question[] = [];
+      
+      for (const q of generated) {
+        if (prioritySet.has(q.question_string)) {
+          weak.push(q);
+        } else {
+          normal.push(q);
         }
       }
-      if (pickedInThisRound === 0) break;
+      
+      // Shuffle both
+      [weak, normal].forEach(list => {
+        for (let i = list.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [list[i], list[j]] = [list[j], list[i]];
+        }
+      });
+
+      return { weak, normal, weakIdx: 0, normalIdx: 0 };
+    });
+
+    const finalQuestions: Question[] = [];
+    let pickedCount = 0;
+
+    // 3. Phase 1: Try to fill up to 50% of the quiz with weak spots using round-robin across pillars
+    const maxWeakSpots = Math.floor(totalTarget * 0.5);
+    let weakRounds = 0;
+    while (pickedCount < maxWeakSpots && weakRounds < 100) { // Safety break
+      let pickedInRound = 0;
+      for (const p of pillarPools) {
+        if (pickedCount < maxWeakSpots && p.weakIdx < p.weak.length) {
+          finalQuestions.push(p.weak[p.weakIdx]);
+          p.weakIdx++;
+          pickedCount++;
+          pickedInRound++;
+        }
+      }
+      if (pickedInRound === 0) break;
+      weakRounds++;
     }
 
-    // 4. Final shuffle
-    // Even though we shuffle the big pool, the statistical distribution 
-    // remains balanced across categories.
-    for (let i = poolQuestions.length - 1; i > 0; i--) {
+    // 4. Phase 2: Fill the rest with normal questions (and any remaining weak spots) 
+    // using round-robin to maintain balance
+    let safetyRounds = 0;
+    while (pickedCount < totalTarget && safetyRounds < 500) {
+      let pickedInRound = 0;
+      for (const p of pillarPools) {
+        if (pickedCount < totalTarget) {
+          if (p.normalIdx < p.normal.length) {
+            finalQuestions.push(p.normal[p.normalIdx]);
+            p.normalIdx++;
+            pickedCount++;
+            pickedInRound++;
+          } else if (p.weakIdx < p.weak.length) {
+            // If we ran out of normal for a category, use its leftover weak ones
+            finalQuestions.push(p.weak[p.weakIdx]);
+            p.weakIdx++;
+            pickedCount++;
+            pickedInRound++;
+          }
+        }
+      }
+      if (pickedInRound === 0) break;
+      safetyRounds++;
+    }
+
+    // 5. Final shuffle so the categories and weak spots are distributed
+    for (let i = finalQuestions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [poolQuestions[i], poolQuestions[j]] = [poolQuestions[j], poolQuestions[i]];
+      [finalQuestions[i], finalQuestions[j]] = [finalQuestions[j], finalQuestions[i]];
     }
 
-    return poolQuestions;
+    return finalQuestions;
   }
 
   evaluateAnswer(question: Question, userAnswer: any): boolean {

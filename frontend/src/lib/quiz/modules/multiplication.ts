@@ -5,7 +5,7 @@ export class MultiplicationModule extends BaseQuizModule {
   title = "Multiplication Tables";
   description = "Master your times tables with configurable ranges.";
 
-  generateQuestions(config: Record<string, any>): Question[] {
+  generateQuestions(config: Record<string, any>, _weakSpots?: string[]): Question[] {
     const rangeStart = Number(config.range_start ?? 2);
     const rangeEnd = Number(config.range_end ?? 12);
     const length = Number(config.length ?? 10);

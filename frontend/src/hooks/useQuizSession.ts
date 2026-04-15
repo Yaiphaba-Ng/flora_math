@@ -37,55 +37,25 @@ export function useQuizSession(moduleSlug: string) {
       const module = getModuleBySlug(moduleSlug);
       if (!module) throw new Error("Module not found");
 
-      let weakSpots: any = null;
+      let weakSpotStrings: string[] = [];
       try {
         const res = await fetch(`/api/admin/metrics/weak-spots?module=${moduleSlug}`);
         if (res.ok) {
-          weakSpots = await res.json();
+          const weakSpots = await res.json();
+          weakSpotStrings = [
+            ...(weakSpots.top_errors || []), 
+            ...(weakSpots.slowest_correct || [])
+          ].map((w: any) => w.question);
         }
       } catch (err) {
         console.warn("Failed to fetch weak spots", err);
       }
 
-      let generated = module.generateQuestions(config);
-      const targetLength = Math.max(1, Number(config.num_questions ?? 20));
+      // Logic is now delegated to the module: sampling is influenced BY the weak spots
+      let generated = module.generateQuestions(config, weakSpotStrings);
       
-      let finalQuestions: Question[] = [];
-
-      if (weakSpots && (weakSpots.top_errors?.length > 0 || weakSpots.slowest_correct?.length > 0)) {
-        const prioritySet = new Set(
-          [...(weakSpots.top_errors || []), ...(weakSpots.slowest_correct || [])].map((w: any) => w.question)
-        );
-        
-        let priorityEligible: Question[] = [];
-        let normalEligible: Question[] = [];
-        
-        // Modules usually return many shuffled questions. Separate them out.
-        for (const q of generated) {
-          if (prioritySet.has(q.question_string)) {
-            priorityEligible.push(q);
-          } else {
-            normalEligible.push(q);
-          }
-        }
-        
-        // Take up to 50% from priority to ensure balanced learning
-        const maxPriority = Math.floor(targetLength * 0.5);
-        const priorityToTake = priorityEligible.slice(0, maxPriority);
-        
-        const remainingToFill = targetLength - priorityToTake.length;
-        const normalsToTake = normalEligible.slice(0, remainingToFill);
-        
-        finalQuestions = [...priorityToTake, ...normalsToTake];
-        
-        // Shuffle the combined set so priority questions aren't clumped together
-        for (let i = finalQuestions.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [finalQuestions[i], finalQuestions[j]] = [finalQuestions[j], finalQuestions[i]];
-        }
-      } else {
-        finalQuestions = generated.slice(0, targetLength);
-      }
+      const targetLength = Math.max(1, Number(config.num_questions ?? 20));
+      const finalQuestions = generated.slice(0, targetLength);
 
       if (finalQuestions.length === 0) throw new Error("No questions generated");
 

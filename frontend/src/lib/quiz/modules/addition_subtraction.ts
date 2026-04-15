@@ -5,25 +5,7 @@ export class AdditionSubtractionModule extends BaseQuizModule {
   title = "Addition & Subtraction";
   description = "Master mental math with customizable addition and subtraction challenges.";
 
-  getConfigSchema() {
-    return [
-      {
-        key: "digits",
-        label: "Digit complexity",
-        type: "number" as const,
-        min: 1,
-        defaultValue: 2,
-      },
-      {
-        key: "allow_negative",
-        label: "Allow negative answers",
-        type: "toggle" as const,
-        defaultValue: false,
-      },
-    ];
-  }
-
-  generateQuestions(config: Record<string, any>): Question[] {
+  generateQuestions(config: Record<string, any>, _weakSpots?: string[]): Question[] {
     const digits = Number(config.digits ?? 2);
     const allowNegative = Boolean(config.allow_negative ?? false);
     const numQuestions = Number(config.num_questions ?? 20);

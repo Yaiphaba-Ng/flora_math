@@ -5,7 +5,7 @@ export class PowersModule extends BaseQuizModule {
   title = "Squares & Cubes";
   description = "Learn and practice your squares (n²) and cubes (n³) from memory.";
 
-  generateQuestions(config: Record<string, any>): Question[] {
+  generateQuestions(config: Record<string, any>, _weakSpots?: string[]): Question[] {
     const rangeStart = Number(config.range_start ?? 1);
     const rangeEnd = Number(config.range_end ?? 20);
     const mode = config.mode || "squares";
