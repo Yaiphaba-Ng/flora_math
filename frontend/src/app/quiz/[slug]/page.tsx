@@ -195,54 +195,58 @@ export default function QuizPage() {
           </div>
 
           {/* ── Question + Form ── */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentQuestion}
-              initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 1.04, rotate: 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="px-5 pt-6 pb-5"
-            >
-              <p className="text-text-muted text-xs font-semibold tracking-widest uppercase text-center opacity-60 mb-3">
-                What is
-              </p>
-              <h2
-                id="quiz-question-text"
-                className="text-4xl font-extrabold text-brand-accent text-center mb-6 tabular-nums"
-              >
-                {currentQuestion}
-              </h2>
-              <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <input
-                  id="quiz-answer-input"
-                  ref={inputRef}
-                  type="number"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  className="w-full text-center text-3xl font-bold bg-white/90 rounded-2xl px-4 py-3.5 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  placeholder="?"
-                  autoFocus
-                  readOnly={showFeedback}
-                  onBlur={() => {
-                    // Prevent keyboard dismissal during feedback phase
-                    if (showFeedbackRef.current && inputRef.current) {
-                      inputRef.current.focus();
-                    }
-                  }}
-                />
-                <BouncyButton
-                  id="quiz-submit-btn"
-                  type="submit"
-                  variant="primary"
-                  className="w-full text-lg py-4 rounded-2xl"
-                  disabled={showFeedback || !answer.trim()}
+          <div className="px-5 pt-6 pb-5">
+            <div className="relative mb-6 min-h-[100px] flex flex-col justify-center">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentQuestion}
+                  initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  exit={{ opacity: 0, scale: 1.04, rotate: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                  className="w-full"
                 >
-                  Submit
-                </BouncyButton>
-              </form>
-            </motion.div>
-          </AnimatePresence>
+                  <p className="text-text-muted text-xs font-semibold tracking-widest uppercase text-center opacity-60 mb-3">
+                    What is
+                  </p>
+                  <h2
+                    id="quiz-question-text"
+                    className="text-4xl font-extrabold text-brand-accent text-center tabular-nums"
+                  >
+                    {currentQuestion}
+                  </h2>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <input
+                id="quiz-answer-input"
+                ref={inputRef}
+                type="number"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                className="w-full text-center text-3xl font-bold bg-white/90 rounded-2xl px-4 py-3.5 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="?"
+                autoFocus
+                onBlur={() => {
+                  // Prevent keyboard dismissal during feedback phase
+                  if (showFeedbackRef.current && inputRef.current) {
+                    inputRef.current.focus();
+                  }
+                }}
+              />
+              <BouncyButton
+                id="quiz-submit-btn"
+                type="submit"
+                variant="primary"
+                className="w-full text-lg py-4 rounded-2xl"
+                disabled={showFeedback || !answer.trim()}
+              >
+                Submit
+              </BouncyButton>
+            </form>
+          </div>
         </motion.div>
 
         {/* ── In-place feedback — absolute over the card ── */}
