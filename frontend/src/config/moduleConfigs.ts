@@ -94,7 +94,8 @@ export const MODULE_CONFIG_SCHEMAS: ModuleConfigSchema[] = [
     computeMaxQuestions: (cfg) => {
       const start = Number(cfg.range_start ?? 1);
       const end = Number(cfg.range_end ?? 20);
-      return Math.max(1, Math.abs(end - start) + 1);
+      const base = Math.max(1, Math.abs(end - start) + 1);
+      return cfg.mode === "mixed" ? base * 2 : base;
     },
     fields: [
       {

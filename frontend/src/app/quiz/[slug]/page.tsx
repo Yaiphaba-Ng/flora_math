@@ -165,7 +165,7 @@ export default function QuizPage() {
             <button
               id="quiz-back-btn"
               onClick={() => router.push("/")}
-              className="shrink-0 w-9 h-9 flex items-center justify-center text-text-muted hover:text-brand-primary transition rounded-full hover:bg-white/70"
+              className="shrink-0 w-11 h-11 flex items-center justify-center text-text-muted hover:text-brand-primary transition rounded-full hover:bg-white/70"
             >
               <ArrowLeft size={18} />
             </button>

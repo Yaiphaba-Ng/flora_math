@@ -132,17 +132,17 @@ export default function Home() {
                   {/* Gear config button — top-right corner */}
                   <motion.button
                     data-testid={`module-config-btn-${mod.slug}`}
-                    whileHover={{ rotate: 90, scale: 1.2, color: "#FFB6C1" }}
-                    whileTap={{ scale: 0.8, rotate: -45 }}
+                    whileHover={{ rotate: 90, scale: 1.1, color: "#FFB6C1" }}
+                    whileTap={{ scale: 0.95, rotate: -45 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     onClick={() => setConfigSlug(mod.slug)}
-                    className="absolute top-4 right-4 p-2 rounded-full text-text-muted hover:bg-white shadow-sm hover:shadow-brand-primary/20 transition-colors"
+                    className="absolute top-1 right-1 w-14 h-14 flex items-center justify-center rounded-full text-text-muted transition-colors"
                     title="Configure quiz"
                   >
-                    <Settings size={18} />
+                    <Settings size={22} />
                   </motion.button>
 
-                  <div className="pr-8">
+                  <div className="pr-12">
                     <h4 id="quiz-card-title" className="text-xl font-bold text-brand-accent mb-2">{mod.title}</h4>
                     <p className="text-text-muted text-sm">{mod.desc}</p>
                   </div>
