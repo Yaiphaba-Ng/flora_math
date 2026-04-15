@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuizSession } from "@/hooks/useQuizSession";
 import { BouncyButton } from "@/components/ui/BouncyButton";
 import { SoftCard } from "@/components/ui/SoftCard";
-import { ArrowLeft, Trophy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useConfigStore } from "@/store/useConfigStore";
 import { useEncouragements } from "@/hooks/useEncouragements";
 
@@ -145,60 +145,82 @@ export default function QuizPage() {
 
   // ── QUIZ STATE ─────────────────────────────────────────────────────────────
   return (
-    <main id="quiz-page" data-quiz-slug={slug} className="min-h-screen p-8 flex flex-col items-center max-w-lg mx-auto gap-8 relative">
+    <main id="quiz-page" data-quiz-slug={slug} className="min-h-screen flex flex-col items-center justify-start p-3 pt-4 max-w-lg mx-auto">
 
-      {/* Back + Progress */}
-      <header className="w-full flex items-center gap-4 bg-[#FFF9FB]/80 backdrop-blur-md p-4 rounded-3xl border border-brand-light/50 shadow-sm">
-        <button id="quiz-back-btn" onClick={() => router.push("/")} className="p-2 text-text-muted hover:text-brand-primary transition rounded-full hover:bg-brand-light">
-          <ArrowLeft size={20} />
-        </button>
-        <div id="quiz-progress-bar-track" className="flex-1 bg-brand-light rounded-full h-3 overflow-hidden">
-          <motion.div
-            id="quiz-progress-bar"
-            className="h-full bg-brand-primary rounded-full"
-            animate={{ width: `${progressPct}%` }}
-            transition={{ duration: 0.4 }}
-          />
-        </div>
-        <span id="quiz-progress-counter" className="text-sm font-bold text-brand-primary whitespace-nowrap">
-          {questionIndex - 1} / {totalQuestions}
-        </span>
-      </header>
-
-      {/* Score pill */}
-      <motion.div 
-        id="quiz-score-pill" 
-        key={score}
-        initial={{ scale: 1 }}
-        animate={{ scale: [1, 1.2, 1] }}
-        className="flex items-center gap-2 bg-brand-light px-4 py-2 rounded-full shadow-md shadow-brand-primary/10 border border-brand-primary/10"
+      {/* ── Unified Game Card ── */}
+      <motion.div
+        className="w-full bg-brand-light rounded-3xl shadow-xl shadow-brand-primary/10 border border-brand-primary/20 overflow-hidden"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 350, damping: 30 }}
       >
-        <Trophy size={16} className="text-brand-accent" />
-        <span className="text-sm font-bold text-brand-primary tabular-nums">Score: {score}</span>
-      </motion.div>
+        {/* ── Card Header: back + progress + score ── */}
+        <div className="bg-brand-light/40 px-4 py-3 flex items-center gap-3 border-b border-brand-light/50">
+          <button
+            id="quiz-back-btn"
+            onClick={() => router.push("/")}
+            className="shrink-0 w-9 h-9 flex items-center justify-center text-text-muted hover:text-brand-primary transition rounded-full hover:bg-white/70"
+          >
+            <ArrowLeft size={18} />
+          </button>
 
-      {/* Question Card */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQuestion}
-          initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          exit={{ opacity: 0, scale: 1.1, rotate: 2 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="w-full"
-        >
-          <SoftCard className="text-center !bg-brand-light border-brand-light/60 shadow-xl shadow-brand-primary/5">
-            <p className="text-text-muted text-sm mb-4 font-medium tracking-wide uppercase opacity-70">What is</p>
-            <h2 id="quiz-question-text" className="text-5xl font-bold text-brand-primary mb-8">{currentQuestion} = ?</h2>
+          {/* Progress bar track */}
+          <div id="quiz-progress-bar-track" className="flex-1 bg-white/70 rounded-full h-2.5 overflow-hidden shadow-inner">
+            <motion.div
+              id="quiz-progress-bar"
+              className="h-full bg-brand-primary rounded-full"
+              animate={{ width: `${progressPct}%` }}
+              transition={{ duration: 0.4 }}
+            />
+          </div>
 
-            <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Progress pill */}
+          <motion.div
+            id="quiz-progress-counter"
+            key={questionIndex}
+            initial={{ scale: 1 }}
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ duration: 0.25 }}
+            className="shrink-0 flex items-center gap-1 bg-white/80 border border-brand-primary/15 px-3 py-1 rounded-full shadow-sm"
+          >
+            <span className="text-xs font-extrabold text-brand-primary tabular-nums">{questionIndex - 1}</span>
+            <span className="text-xs font-bold text-text-muted">/</span>
+            <span className="text-xs font-bold text-text-muted tabular-nums">{totalQuestions}</span>
+          </motion.div>
+        </div>
+
+        {/* ── Question + Answer form body ── */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentQuestion}
+            initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 1.04, rotate: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            className="px-5 pt-6 pb-5"
+          >
+            {/* Label */}
+            <p className="text-text-muted text-xs font-semibold tracking-widest uppercase text-center opacity-60 mb-3">
+              What is
+            </p>
+
+            {/* Question */}
+            <h2
+              id="quiz-question-text"
+              className="text-4xl font-extrabold text-brand-accent text-center mb-6 tabular-nums"
+            >
+              {currentQuestion}
+            </h2>
+
+            {/* Form */}
+            <form id="quiz-answer-form" onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input
                 id="quiz-answer-input"
                 ref={inputRef}
                 type="number"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                className="w-full text-center text-3xl font-bold bg-white/60 rounded-2xl p-4 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light"
+                className="w-full text-center text-3xl font-bold bg-white/90 rounded-2xl px-4 py-3.5 outline-none focus:ring-4 focus:ring-inset focus:ring-brand-primary/20 text-brand-primary border border-brand-light transition-all placeholder:text-brand-light/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="?"
                 autoFocus
                 readOnly={showFeedback}
@@ -213,9 +235,9 @@ export default function QuizPage() {
                 Submit
               </BouncyButton>
             </form>
-          </SoftCard>
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
       {/* ── Full-screen feedback overlay ── */}
       <AnimatePresence>
